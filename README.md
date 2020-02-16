@@ -1,1 +1,1 @@
-# krom
+# Krom - image processing library
