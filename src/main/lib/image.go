@@ -45,8 +45,8 @@ func Save(img image.Image, path, format string) error {
 	return errors.New("Unsupported file format: " + format)
 }
 
-// Create returns an image with the given size
-func Create(dimension image.Rectangle) image.Image {
+// CreateRGBA returns an image with the given size
+func CreateRGBA(dimension image.Rectangle) image.Image {
 	img := image.NewRGBA(dimension)
 	return img
 }

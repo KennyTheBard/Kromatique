@@ -90,3 +90,11 @@ func NewKromEngine(workForce, queueSize int) KromEngine {
 func (krom *KromEngine) Grayscale() *Grayscale {
 	return &Grayscale{engine:krom}
 }
+
+func (krom *KromEngine) CustomGrayscale(redRatio, greenRatio, blueRatio int) *Grayscale {
+	return &Grayscale{redRatio: redRatio, greenRatio: greenRatio, blueRatio: blueRatio, engine:krom}
+}
+
+func (krom *KromEngine) Sepia() *Sepia {
+	return &Sepia{engine:krom}
+}
