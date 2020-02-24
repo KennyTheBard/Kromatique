@@ -5,8 +5,11 @@ import (
 	"image/color"
 )
 
+// EdgeHandlingStrategy defines an interface for all functions used
+// to determine the behaviour of filtering around the edge of the image
 type EdgeHandlingStrategy func(*image.Image, int, int) color.Color
 
+// Extends returns the color of the closest pixel of the image
 func Extend(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
@@ -25,6 +28,8 @@ func Extend(img *image.Image, x, y int) color.Color {
 	return (*img).At(x, y)
 }
 
+// Wrap returns the color of the pixel as if the image is conceptually
+// wrapped (or tiled) and values are taken from the opposite edge or corner.
 func Wrap(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
@@ -43,6 +48,9 @@ func Wrap(img *image.Image, x, y int) color.Color {
 	return (*img).At(x, y)
 }
 
+// Mirror returns the color of the pixel as if the image is conceptually
+// mirrored at the edges. For example, attempting to read a pixel 3 units
+// outside an edge reads one 3 units inside the edge instead.
 func Mirror(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
