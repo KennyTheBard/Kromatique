@@ -5,59 +5,59 @@ import (
 	"image/color"
 )
 
-type EdgeHandlingStrategy func(image.Point, *image.Image) color.Color
+type EdgeHandlingStrategy func(*image.Image, int, int) color.Color
 
-func Extend(p image.Point, img *image.Image) color.Color {
+func Extend(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
-	if p.X < bounds.Min.X {
-		p.X = bounds.Min.X
-	} else if p.X > bounds.Max.X {
-		p.X = bounds.Max.X
+	if x < bounds.Min.X {
+		x = bounds.Min.X
+	} else if x > bounds.Max.X {
+		x = bounds.Max.X
 	}
 
-	if p.Y < bounds.Min.Y {
-		p.Y = bounds.Min.Y
-	} else if p.Y > bounds.Max.Y {
-		p.Y = bounds.Max.Y
+	if y < bounds.Min.Y {
+		y = bounds.Min.Y
+	} else if y > bounds.Max.Y {
+		y = bounds.Max.Y
 	}
 
-	return (*img).At(p.X, p.Y)
+	return (*img).At(x, y)
 }
 
-func Wrap(p image.Point, img *image.Image) color.Color {
+func Wrap(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
-	if p.X < bounds.Min.X {
-		p.X += bounds.Max.X - bounds.Min.X
-	} else if p.X > bounds.Max.X {
-		p.X -= bounds.Max.X - bounds.Min.X
+	if x < bounds.Min.X {
+		x += bounds.Max.X - bounds.Min.X
+	} else if x > bounds.Max.X {
+		x -= bounds.Max.X - bounds.Min.X
 	}
 
-	if p.Y < bounds.Min.Y {
-		p.Y += bounds.Max.Y - bounds.Min.Y
-	} else if p.Y > bounds.Max.Y {
-		p.Y -= bounds.Max.Y - bounds.Min.Y
+	if y < bounds.Min.Y {
+		y += bounds.Max.Y - bounds.Min.Y
+	} else if y > bounds.Max.Y {
+		y -= bounds.Max.Y - bounds.Min.Y
 	}
 
-	return (*img).At(p.X, p.Y)
+	return (*img).At(x, y)
 }
 
-func Mirror(p image.Point, img *image.Image) color.Color {
+func Mirror(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
-	if p.X < bounds.Min.X {
-		p.X = 2 * bounds.Min.X - p.X
-	} else if p.X > bounds.Max.X {
-		p.X = 2 * bounds.Max.X - p.X
+	if x < bounds.Min.X {
+		x = 2 * bounds.Min.X - x
+	} else if x > bounds.Max.X {
+		x = 2 * bounds.Max.X - x
 	}
 
-	if p.Y < bounds.Min.Y {
-		p.Y = 2 * bounds.Min.Y - p.Y
-	} else if p.Y > bounds.Max.Y {
-		p.Y = 2 * bounds.Max.Y - p.Y
+	if y < bounds.Min.Y {
+		y = 2 * bounds.Min.Y - y
+	} else if y > bounds.Max.Y {
+		y = 2 * bounds.Max.Y - y
 	}
 
-	return (*img).At(p.X, p.Y)
+	return (*img).At(x, y)
 }
 
