@@ -13,7 +13,7 @@ type Overlay struct {
 	core.BaseEffect
 	Stamp        image.Image
 	Origin       image.Point
-	//transparency float64
+	Opacity float64
 }
 
 func (effect *Overlay) Apply(img image.Image) core.Promise {
@@ -37,21 +37,25 @@ func (effect *Overlay) Apply(img image.Image) core.Promise {
 
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
-				} else if oa == core.MaxUint16 {
-					ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
 				} else {
-					r, g, b, a := img.At(x, y).RGBA()
+					opacity := core.Lerp(float64(oa) / core.MaxUint16, 0.0, effect.Opacity)
 
-					newRed := core.Lerp(float64(or), float64(r), float64(oa) / core.MaxUint16)
-					newGreen := core.Lerp(float64(og), float64(g), float64(oa) / core.MaxUint16)
-					newBlue := core.Lerp(float64(ob), float64(b), float64(oa) / core.MaxUint16)
+					if opacity == core.MaxUint16 {
+						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
+					} else {
+						r, g, b, a := img.At(x, y).RGBA()
 
-					ret.(draw.Image).Set(x, y, color.RGBA64{
-						R: uint16(core.ClampUint16(newRed)),
-						G: uint16(core.ClampUint16(newGreen)),
-						B: uint16(core.ClampUint16(newBlue)),
-						A: uint16(a),
-					})
+						newRed := core.Lerp(float64(or), float64(r), opacity)
+						newGreen := core.Lerp(float64(og), float64(g), opacity)
+						newBlue := core.Lerp(float64(ob), float64(b), opacity)
+
+						ret.(draw.Image).Set(x, y, color.RGBA64{
+							R: uint16(core.ClampUint16(newRed)),
+							G: uint16(core.ClampUint16(newGreen)),
+							B: uint16(core.ClampUint16(newBlue)),
+							A: uint16(a),
+						})
+					}
 				}
 			}
 		}); err != nil {

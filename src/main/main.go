@@ -32,7 +32,7 @@ func main() {
 	}
 	p := f.Apply(img)
 
-	o := effect.Overlay{Stamp: img, Origin: image.Pt(300, 300)}
+	o := effect.Overlay{Stamp: img, Origin: image.Pt(300, 300), Opacity: 0.9}
 	o.TransferTo(&ke)
 	p2 := o.Apply(p.Result())
 
