@@ -5,6 +5,7 @@ import (
 	effect "./lib/effect"
 	strategy "./lib/effect/strategy"
 	wrap "./lib/effect/wrap"
+	"image"
 
 	"fmt"
 )
@@ -31,7 +32,11 @@ func main() {
 	}
 	p := f.Apply(img)
 
-	if err := lib.Save(p.Result(), "../resources/result", "jpg"); err != nil {
+	o := effect.Overlay{Stamp: img, Origin: image.Pt(300, 300)}
+	o.TransferTo(&ke)
+	p2 := o.Apply(p.Result())
+
+	if err := lib.Save(p2.Result(), "../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 

@@ -15,9 +15,9 @@ type Grayscale struct {
 	core.BaseEffect
 }
 
-func (gs *Grayscale) Apply(img image.Image) core.Promise {
+func (effect *Grayscale) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
-	contract := gs.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -43,14 +43,14 @@ type RatioGrayscale struct {
 	blueRatio  int
 }
 
-func (gs *RatioGrayscale) Apply(img image.Image) core.Promise {
+func (effect *RatioGrayscale) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
-	contract := gs.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
-	totalRatio := float64(gs.redRatio + gs.greenRatio + gs.blueRatio)
-	rr := float64(gs.redRatio) / totalRatio
-	gr := float64(gs.greenRatio) / totalRatio
-	br := float64(gs.blueRatio) / totalRatio
+	totalRatio := float64(effect.redRatio + effect.greenRatio + effect.blueRatio)
+	rr := float64(effect.redRatio) / totalRatio
+	gr := float64(effect.greenRatio) / totalRatio
+	br := float64(effect.blueRatio) / totalRatio
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -75,9 +75,9 @@ type Sepia struct {
 	core.BaseEffect
 }
 
-func (gs *Sepia) Apply(img image.Image) core.Promise {
+func (effect *Sepia) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
-	contract := gs.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i

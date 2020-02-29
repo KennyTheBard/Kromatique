@@ -18,10 +18,10 @@ type SingleKernel struct {
 	Kernel       wrap.Matrix
 }
 
-func (sk *SingleKernel) Apply(img image.Image) core.Promise {
+func (effect *SingleKernel) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
-	contract := sk.GetEngine().Contract(img.Bounds().Dy())
-	radius := sk.Kernel.Radius()
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	radius := effect.Kernel.Radius()
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -32,11 +32,11 @@ func (sk *SingleKernel) Apply(img image.Image) core.Promise {
 				var newBlue float64
 				for yy := -radius; yy <= radius; yy++ {
 					for xx := -radius; xx <= radius; xx++ {
-						r, g, b, _ := sk.EdgeHandling(&img, x+xx, y+yy).RGBA()
+						r, g, b, _ := effect.EdgeHandling(&img, x+xx, y+yy).RGBA()
 
-						newRed += float64(r) * sk.Kernel.Get(xx+radius, yy+radius)
-						newGreen += float64(g) * sk.Kernel.Get(xx+radius, yy+radius)
-						newBlue += float64(b) * sk.Kernel.Get(xx+radius, yy+radius)
+						newRed += float64(r) * effect.Kernel.Get(xx+radius, yy+radius)
+						newGreen += float64(g) * effect.Kernel.Get(xx+radius, yy+radius)
+						newBlue += float64(b) * effect.Kernel.Get(xx+radius, yy+radius)
 					}
 				}
 
@@ -60,14 +60,14 @@ type MultiKernel struct {
 	Kernels       []wrap.Matrix
 }
 
-func (mk *MultiKernel) Apply(img image.Image) core.Promise {
+func (effect *MultiKernel) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
-	contract := mk.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
-	radiusNumber := len(mk.Kernels)
-	radiusList := make([]int, len(mk.Kernels))
+	radiusNumber := len(effect.Kernels)
+	radiusList := make([]int, len(effect.Kernels))
 	for i, _ := range radiusList {
-		radiusList[i] = mk.Kernels[i].Radius()
+		radiusList[i] = effect.Kernels[i].Radius()
 	}
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
@@ -78,11 +78,11 @@ func (mk *MultiKernel) Apply(img image.Image) core.Promise {
 				newGreen := make([]float64, radiusNumber)
 				newBlue := make([]float64, radiusNumber)
 
-				for index, kernel := range mk.Kernels {
+				for index, kernel := range effect.Kernels {
 					radius := radiusList[index]
 					for yy := -radius; yy <= radius; yy++ {
 						for xx := -radius; xx <= radius; xx++ {
-							r, g, b, _ := mk.EdgeHandling(&img, x+xx, y+yy).RGBA()
+							r, g, b, _ := effect.EdgeHandling(&img, x+xx, y+yy).RGBA()
 
 							newRed[index] += float64(r) * kernel.Get(xx+radius, yy+radius)
 							newGreen[index] += float64(g) * kernel.Get(xx+radius, yy+radius)
@@ -93,9 +93,9 @@ func (mk *MultiKernel) Apply(img image.Image) core.Promise {
 
 				ret.(draw.Image).Set(x, y,
 					color.RGBA64{
-						R: uint16(core.ClampUint16(mk.ResultMerging(newRed))),
-						G: uint16(core.ClampUint16(mk.ResultMerging(newGreen))),
-						B: uint16(core.ClampUint16(mk.ResultMerging(newBlue))),
+						R: uint16(core.ClampUint16(effect.ResultMerging(newRed))),
+						G: uint16(core.ClampUint16(effect.ResultMerging(newGreen))),
+						B: uint16(core.ClampUint16(effect.ResultMerging(newBlue))),
 					})
 			}
 		}); err != nil {
