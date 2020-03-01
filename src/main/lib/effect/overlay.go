@@ -2,6 +2,7 @@ package effect
 
 import (
 	core ".."
+	position "../position"
 	"fmt"
 	"image"
 	"image/color"
@@ -11,8 +12,8 @@ import (
 // Overlay encapsulates the data needed to apply an overlay image
 type Overlay struct {
 	core.BaseEffect
-	Stamp        image.Image
-	Origin       image.Point
+	Stamp   image.Image
+	Origin  position.Position
 	Opacity float64
 }
 
@@ -20,25 +21,25 @@ func (effect *Overlay) Apply(img image.Image) core.Promise {
 	ret := core.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 	stampBounds := effect.Stamp.Bounds()
+	origin := effect.Origin.Get(img.Bounds())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
 		if err := contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				if x < effect.Origin.X ||
-					y < effect.Origin.Y ||
-					x > stampBounds.Max.X+effect.Origin.X ||
-					y > stampBounds.Max.Y+effect.Origin.Y {
+				if x < origin.X || y < origin.Y ||
+					x > stampBounds.Max.X+origin.X ||
+					y > stampBounds.Max.Y+origin.Y {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 					continue
 				}
 
-				or, og, ob, oa := effect.Stamp.At(x-effect.Origin.X, y-effect.Origin.Y).RGBA()
+				or, og, ob, oa := effect.Stamp.At(x-origin.X, y-origin.Y).RGBA()
 
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 				} else {
-					opacity := core.Lerp(float64(oa) / core.MaxUint16, 0.0, effect.Opacity)
+					opacity := core.Lerp(float64(oa)/core.MaxUint16, 0.0, effect.Opacity)
 
 					if opacity == core.MaxUint16 {
 						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})

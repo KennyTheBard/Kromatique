@@ -5,8 +5,7 @@ import (
 	effect "./lib/effect"
 	strategy "./lib/effect/strategy"
 	wrap "./lib/effect/wrap"
-	"image"
-
+	pos "./lib/position"
 	"fmt"
 )
 
@@ -32,7 +31,12 @@ func main() {
 	}
 	p := f.Apply(img)
 
-	o := effect.Overlay{Stamp: img, Origin: image.Pt(300, 300), Opacity: 0.9}
+	o := effect.Overlay{
+		Stamp: img,
+		Origin: pos.NewRelativePosition(
+			pos.NewRelativeAxialPosition(100, pos.Center),
+			pos.NewRelativeAxialPosition(0, pos.Center)),
+		Opacity: 0.9}
 	o.TransferTo(&ke)
 	p2 := o.Apply(p.Result())
 
