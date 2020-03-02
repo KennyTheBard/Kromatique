@@ -3,6 +3,7 @@ package effect
 import (
 	core ".."
 	position "../position"
+	utils "../utils"
 	"fmt"
 	"image"
 	"image/color"
@@ -18,7 +19,7 @@ type Overlay struct {
 }
 
 func (effect *Overlay) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 	stampBounds := effect.Stamp.Bounds()
 	origin := effect.Origin.Get(img.Bounds())
@@ -39,21 +40,21 @@ func (effect *Overlay) Apply(img image.Image) core.Promise {
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 				} else {
-					opacity := core.Lerp(float64(oa)/core.MaxUint16, 0.0, effect.Opacity)
+					opacity := utils.LERP(float64(oa)/utils.MaxUint16, 0.0, effect.Opacity)
 
-					if opacity == core.MaxUint16 {
+					if opacity == utils.MaxUint16 {
 						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
 					} else {
 						r, g, b, a := img.At(x, y).RGBA()
 
-						newRed := core.Lerp(float64(or), float64(r), opacity)
-						newGreen := core.Lerp(float64(og), float64(g), opacity)
-						newBlue := core.Lerp(float64(ob), float64(b), opacity)
+						newRed := utils.LERP(float64(or), float64(r), opacity)
+						newGreen := utils.LERP(float64(og), float64(g), opacity)
+						newBlue := utils.LERP(float64(ob), float64(b), opacity)
 
 						ret.(draw.Image).Set(x, y, color.RGBA64{
-							R: uint16(core.ClampUint16(newRed)),
-							G: uint16(core.ClampUint16(newGreen)),
-							B: uint16(core.ClampUint16(newBlue)),
+							R: uint16(utils.ClampUint16(newRed)),
+							G: uint16(utils.ClampUint16(newGreen)),
+							B: uint16(utils.ClampUint16(newBlue)),
 							A: uint16(a),
 						})
 					}

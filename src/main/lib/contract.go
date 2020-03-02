@@ -33,7 +33,9 @@ func (s *OrderContract) Deadline() {
 	s.wg.Wait()
 }
 
-func NewContract(orderSize int, q chan TaskContract) OrderContract {
+// NewContract creates a new contract that accepts orderSize numbers if tasks
+// and a communication channel with the engine in order to send tasks through
+func NewContract(orderSize int, q OrderQueue) OrderContract {
 	sup := OrderContract{}
 	sup.limit = orderSize
 	sup.q = q

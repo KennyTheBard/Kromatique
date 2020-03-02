@@ -1,9 +1,10 @@
 package effect
 
 import (
-	wrap "./wrap"
 	core ".."
+	utils "../utils"
 	"./strategy"
+	wrap "./wrap"
 	"fmt"
 	"image"
 	"image/color"
@@ -19,7 +20,7 @@ type SingleKernel struct {
 }
 
 func (effect *SingleKernel) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 	radius := effect.Kernel.Radius()
 
@@ -40,7 +41,10 @@ func (effect *SingleKernel) Apply(img image.Image) core.Promise {
 					}
 				}
 
-				ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(core.ClampUint16(newRed)), G: uint16(core.ClampUint16(newGreen)), B: uint16(core.ClampUint16(newBlue))})
+				ret.(draw.Image).Set(x, y, color.RGBA64{
+					R: uint16(utils.ClampUint16(newRed)),
+					G: uint16(utils.ClampUint16(newGreen)),
+					B: uint16(utils.ClampUint16(newBlue))})
 			}
 		}); err != nil {
 			fmt.Print(err)
@@ -61,7 +65,7 @@ type MultiKernel struct {
 }
 
 func (effect *MultiKernel) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	radiusNumber := len(effect.Kernels)
@@ -93,9 +97,9 @@ func (effect *MultiKernel) Apply(img image.Image) core.Promise {
 
 				ret.(draw.Image).Set(x, y,
 					color.RGBA64{
-						R: uint16(core.ClampUint16(effect.ResultMerging(newRed))),
-						G: uint16(core.ClampUint16(effect.ResultMerging(newGreen))),
-						B: uint16(core.ClampUint16(effect.ResultMerging(newBlue))),
+						R: uint16(utils.ClampUint16(effect.ResultMerging(newRed))),
+						G: uint16(utils.ClampUint16(effect.ResultMerging(newGreen))),
+						B: uint16(utils.ClampUint16(effect.ResultMerging(newBlue))),
 					})
 			}
 		}); err != nil {

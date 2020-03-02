@@ -7,7 +7,8 @@ import (
 	"image/draw"
 	"math"
 
-	core  ".."
+	core ".."
+	utils "../utils"
 )
 
 // Grayscale encapsulates the data for a simple grayscale effect
@@ -16,7 +17,7 @@ type Grayscale struct {
 }
 
 func (effect *Grayscale) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
@@ -44,7 +45,7 @@ type RatioGrayscale struct {
 }
 
 func (effect *RatioGrayscale) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	totalRatio := float64(effect.redRatio + effect.greenRatio + effect.blueRatio)
@@ -76,7 +77,7 @@ type Sepia struct {
 }
 
 func (effect *Sepia) Apply(img image.Image) core.Promise {
-	ret := core.CreateRGBA(img.Bounds())
+	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
@@ -84,9 +85,9 @@ func (effect *Sepia) Apply(img image.Image) core.Promise {
 		if err := contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				r, g, b, _ := img.At(x, y).RGBA()
-				newRed := core.ClampUint16(math.Floor(float64(r)*.393 + float64(g)*.769 + float64(b)*.189))
-				newGreen := core.ClampUint16(math.Floor(float64(r)*.349 + float64(g)*.686 + float64(b)*.168))
-				newBlue := core.ClampUint16(math.Floor(float64(r)*.272 + float64(g)*.534 + float64(b)*.131))
+				newRed := utils.ClampUint16(math.Floor(float64(r)*.393 + float64(g)*.769 + float64(b)*.189))
+				newGreen := utils.ClampUint16(math.Floor(float64(r)*.349 + float64(g)*.686 + float64(b)*.168))
+				newBlue := utils.ClampUint16(math.Floor(float64(r)*.272 + float64(g)*.534 + float64(b)*.131))
 
 				ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(newRed), G: uint16(newGreen), B: uint16(newBlue)})
 			}

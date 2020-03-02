@@ -2,6 +2,7 @@ package position
 
 import (
 	core ".."
+	utils "../utils"
 	"math"
 )
 
@@ -47,7 +48,7 @@ type PercentAxialPosition struct {
 }
 
 func (p *PercentAxialPosition) Get(start, end int) int {
-	return int(math.Round(core.Lerp(float64(start), float64(end), p.percent)))
+	return int(math.Round(utils.LERP(float64(start), float64(end), p.percent)))
 }
 
 func NewPercentAxialPosition(val float64) *PercentAxialPosition {

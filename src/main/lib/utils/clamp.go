@@ -1,4 +1,4 @@
-package lib
+package utils
 
 const MaxUint8 = 2<<7 - 1
 const MaxUint16 = 2<<15 - 1
@@ -10,6 +10,7 @@ const MinUint16 = 0
 const MinUint32 = 0
 const MinUint64 = 0
 
+// ClampUint8 returns given value clamped into uint8 range
 func ClampUint8(x float64) float64 {
 	if x < 0 {
 		return MinUint8
@@ -22,6 +23,7 @@ func ClampUint8(x float64) float64 {
 	return x
 }
 
+// ClampUint16 returns given value clamped into uint16 range
 func ClampUint16(x float64) float64 {
 	if x < 0 {
 		return MinUint16
@@ -34,6 +36,7 @@ func ClampUint16(x float64) float64 {
 	return x
 }
 
+// ClampUint32 returns given value clamped into uint32 range
 func ClampUint32(x float64) float64 {
 	if x < 0 {
 		return MinUint32
@@ -46,6 +49,7 @@ func ClampUint32(x float64) float64 {
 	return x
 }
 
+// ClampUint64 returns given value clamped into uint64 range
 func ClampUint64(x float64) float64 {
 	if x < 0 {
 		return MinUint64
