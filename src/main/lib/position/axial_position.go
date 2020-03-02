@@ -1,7 +1,6 @@
 package position
 
 import (
-	core ".."
 	utils "../utils"
 	"math"
 )

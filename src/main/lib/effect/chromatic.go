@@ -99,3 +99,32 @@ func (effect *Sepia) Apply(img image.Image) core.Promise {
 
 	return core.NewPromise(ret, &contract)
 }
+
+// Negative encapsulates the data for a negative effect
+type Negative struct {
+	core.BaseEffect
+}
+
+func (effect *Negative) Apply(img image.Image) core.Promise {
+	ret := utils.CreateRGBA(img.Bounds())
+	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+
+	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
+		y := i
+		if err := contract.PlaceOrder(func() {
+			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
+				r, g, b, _ := img.At(x, y).RGBA()
+				newRed := utils.MaxUint16 - r
+				newGreen := utils.MaxUint16 - g
+				newBlue := utils.MaxUint16 - b
+
+				ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(newRed), G: uint16(newGreen), B: uint16(newBlue)})
+			}
+		}); err != nil {
+			fmt.Print(err)
+			break
+		}
+	}
+
+	return core.NewPromise(ret, &contract)
+}

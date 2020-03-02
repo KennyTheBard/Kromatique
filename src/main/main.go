@@ -6,11 +6,12 @@ import (
 	strategy "./lib/effect/strategy"
 	wrap "./lib/effect/wrap"
 	pos "./lib/position"
+	utils "./lib/utils"
 	"fmt"
 )
 
 func main() {
-	img := lib.Load("../resources/test.jpg")
+	img := utils.Load("../resources/test.jpg")
 
 	ke := lib.NewKromEngine(10, 0)
 	f := effect.MultiKernel{}
@@ -40,7 +41,11 @@ func main() {
 	o.TransferTo(&ke)
 	p2 := o.Apply(p.Result())
 
-	if err := lib.Save(p2.Result(), "../resources/result", "jpg"); err != nil {
+	n := effect.Negative{}
+	n.TransferTo(&ke)
+	p3 := n.Apply(p2.Result())
+
+	if err := utils.Save(p3.Result(), "../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 
