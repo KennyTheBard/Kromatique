@@ -41,7 +41,9 @@ func main() {
 	o.TransferTo(&ke)
 	p2 := o.Apply(p.Result())
 
-	n := effect.Negative{}
+	n := effect.NewScale(
+		strategy.NewFixedScaleFactor(strategy.ScaleFactor{X: 0.71, Y: 0.71}),
+		strategy.CornerPixelsSampling)
 	n.TransferTo(&ke)
 	p3 := n.Apply(p2.Result())
 
