@@ -5,7 +5,6 @@ import (
 	effect "./lib/effect"
 	strategy "./lib/effect/strategy"
 	wrap "./lib/effect/wrap"
-	pos "./lib/position"
 	utils "./lib/utils"
 	"fmt"
 )
@@ -30,24 +29,13 @@ func main() {
 			{-1, -2, -1},
 		},
 	}
-	p := f.Apply(img)
-
-	o := effect.Overlay{
-		Stamp: img,
-		Origin: pos.NewRelativePosition(
-			pos.NewRelativeAxialPosition(100, pos.Center),
-			pos.NewRelativeAxialPosition(0, pos.Center)),
-		Opacity: 0.9}
-	o.TransferTo(&ke)
-	p2 := o.Apply(p.Result())
 
 	n := effect.NewScale(
 		strategy.NewFixedScaleFactor(strategy.ScaleFactor{X: 0.71, Y: 0.71}),
 		strategy.CornerPixelsSampling)
 	n.TransferTo(&ke)
-	p3 := n.Apply(p2.Result())
 
-	if err := utils.Save(p3.Result(), "../resources/result", "jpg"); err != nil {
+	if err := utils.Save(n.Apply(f.Apply(img).Result()).Result(), "../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 

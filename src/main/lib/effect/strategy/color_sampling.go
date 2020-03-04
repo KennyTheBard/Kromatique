@@ -9,13 +9,14 @@ import (
 
 type ColorSamplingStrategy func(int, int, ScaleFactor, image.Image) color.Color
 
-func SinglePixelSampling(x, y int, factor ScaleFactor, img image.Image) color.Color {
-	return img.At(int(math.Round(float64(x)/factor.X)), int(math.Round(float64(y)/factor.Y)))
+func SinglePixelSampling(destX, destY int, factor ScaleFactor, img image.Image) color.Color {
+	exactX, exactY := factor.ToSource(float64(destX), float64(destY))
+
+	return img.At(int(math.Round(exactX)), int(math.Round(exactY)))
 }
 
 func CornerPixelsSampling(x, y int, factor ScaleFactor, img image.Image) color.Color {
-	exactX := float64(x) / factor.X
-	exactY := float64(y) / factor.Y
+	exactX, exactY := factor.ToSource(float64(x), float64(y))
 
 	return utils.PixelBiLERP(
 		img.At(int(math.Floor(exactX)), int(math.Floor(exactY))),

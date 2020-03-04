@@ -8,6 +8,16 @@ type ScaleFactor struct {
 	X, Y float64
 }
 
+// ToDestination returns the color coordinates of the destination image
+func (factor ScaleFactor) ToDestination(x, y float64) (float64, float64) {
+	return x * factor.X, y * factor.Y
+}
+
+// ToSource returns the color coordinates of the source image
+func (factor ScaleFactor) ToSource(x, y float64) (float64, float64) {
+	return x / factor.X, y / factor.Y
+}
+
 // ScaleFactorStrategy encapsulates a strategy used to obtain the
 // scale factor of an image and the target size of the said image
 type ScaleFactorStrategy interface {

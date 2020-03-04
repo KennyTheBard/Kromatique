@@ -12,7 +12,7 @@ type Promise struct {
 // Result blocks the current goroutine until the image effect
 // is applied completely or returns it immediately if it was
 // already completed when is called
-func (p *Promise) Result() image.Image {
+func (p Promise) Result() image.Image {
 	(*p.contract).Deadline()
 	return p.img
 }
