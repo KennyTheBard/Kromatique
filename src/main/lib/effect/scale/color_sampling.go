@@ -1,4 +1,4 @@
-package strategy
+package scale
 
 import (
 	utils "../../utils"
@@ -7,15 +7,15 @@ import (
 	"math"
 )
 
-type ColorSamplingStrategy func(int, int, ScaleFactor, image.Image) color.Color
+type ColorSamplingStrategy func(image.Image, int, int, ScaleFactor) color.Color
 
-func SinglePixelSampling(destX, destY int, factor ScaleFactor, img image.Image) color.Color {
+func SinglePixelSampling(img image.Image, destX, destY int, factor ScaleFactor) color.Color {
 	exactX, exactY := factor.ToSource(float64(destX), float64(destY))
 
 	return img.At(int(math.Round(exactX)), int(math.Round(exactY)))
 }
 
-func CornerPixelsSampling(x, y int, factor ScaleFactor, img image.Image) color.Color {
+func CornerPixelsSampling(img image.Image, x, y int, factor ScaleFactor) color.Color {
 	exactX, exactY := factor.ToSource(float64(x), float64(y))
 
 	return utils.PixelBiLERP(

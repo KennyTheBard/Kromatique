@@ -20,7 +20,11 @@ func (p *FixedPosition) Get(_ image.Rectangle) image.Point {
 }
 
 func NewFixedPosition(x, y int) *FixedPosition {
-	return &FixedPosition{image.Pt(x, y)}
+	fp := new(FixedPosition)
+	fp.X = x
+	fp.Y = y
+
+	return fp
 }
 
 // RelativePosition is a position representation that can use two different
@@ -34,5 +38,9 @@ func (p *RelativePosition) Get(bounds image.Rectangle) image.Point {
 }
 
 func NewRelativePosition(x, y *RelativeAxialPosition) *RelativePosition {
-	return &RelativePosition{x: x, y: y}
+	rp := new(RelativePosition)
+	rp.x = x
+	rp.y = y
+
+	return rp
 }

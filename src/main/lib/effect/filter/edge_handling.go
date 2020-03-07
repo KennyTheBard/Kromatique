@@ -1,4 +1,4 @@
-package strategy
+package filter
 
 import (
 	"image"
@@ -55,17 +55,16 @@ func Mirror(img *image.Image, x, y int) color.Color {
 	bounds := (*img).Bounds()
 
 	if x < bounds.Min.X {
-		x = 2 * bounds.Min.X - x
+		x = 2*bounds.Min.X - x
 	} else if x > bounds.Max.X {
-		x = 2 * bounds.Max.X - x
+		x = 2*bounds.Max.X - x
 	}
 
 	if y < bounds.Min.Y {
-		y = 2 * bounds.Min.Y - y
+		y = 2*bounds.Min.Y - y
 	} else if y > bounds.Max.Y {
-		y = 2 * bounds.Max.Y - y
+		y = 2*bounds.Max.Y - y
 	}
 
 	return (*img).At(x, y)
 }
-

@@ -1,10 +1,8 @@
-package effect
+package filter
 
 import (
-	core ".."
-	utils "../utils"
-	"./strategy"
-	wrap "./wrap"
+	core "../.."
+	utils "../../utils"
 	"fmt"
 	"image"
 	"image/color"
@@ -14,12 +12,12 @@ import (
 // SingleKernel encapsulates the data needed for a filter using a single kernel
 // and implements the general way such a filter is applied on an image
 type SingleKernel struct {
-	core.BaseEffect
-	EdgeHandling strategy.EdgeHandlingStrategy
-	Kernel       wrap.Matrix
+	core.Base
+	EdgeHandling EdgeHandlingStrategy
+	Kernel       utils.Matrix
 }
 
-func (effect *SingleKernel) Apply(img image.Image) core.Promise {
+func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 	radius := effect.Kernel.Radius()
@@ -52,19 +50,19 @@ func (effect *SingleKernel) Apply(img image.Image) core.Promise {
 		}
 	}
 
-	return core.NewPromise(ret, &contract)
+	return core.NewPromise(ret, contract)
 }
 
 // MultiKernel encapsulates the logic data needed for a filter using multiple kernels
 // and implements a customizable way of defining the behaviour
 type MultiKernel struct {
-	core.BaseEffect
-	EdgeHandling  strategy.EdgeHandlingStrategy
-	ResultMerging strategy.ResultMergingStrategy
-	Kernels       []wrap.Matrix
+	core.Base
+	EdgeHandling  EdgeHandlingStrategy
+	ResultMerging ResultMergingStrategy
+	Kernels       []utils.Matrix
 }
 
-func (effect *MultiKernel) Apply(img image.Image) core.Promise {
+func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
@@ -108,5 +106,5 @@ func (effect *MultiKernel) Apply(img image.Image) core.Promise {
 		}
 	}
 
-	return core.NewPromise(ret, &contract)
+	return core.NewPromise(ret, contract)
 }

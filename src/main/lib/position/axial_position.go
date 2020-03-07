@@ -22,7 +22,10 @@ func (p *FixedAxialPosition) Get(_, _ int) int {
 }
 
 func NewFixedAxialPosition(val int) *FixedAxialPosition {
-	return &FixedAxialPosition{value: val}
+	fap := new(FixedAxialPosition)
+	fap.value = val
+
+	return fap
 }
 
 // RelativeAxialPosition is an axial position representation that uses
@@ -37,7 +40,11 @@ func (p *RelativeAxialPosition) Get(start, end int) int {
 }
 
 func NewRelativeAxialPosition(val, mode int) *RelativeAxialPosition {
-	return &RelativeAxialPosition{value: val, mode: mode}
+	rap := new(RelativeAxialPosition)
+	rap.value = val
+	rap.mode = mode
+
+	return rap
 }
 
 // RelativeAxialPosition is an axial position representation that uses
@@ -51,5 +58,8 @@ func (p *PercentAxialPosition) Get(start, end int) int {
 }
 
 func NewPercentAxialPosition(val float64) *PercentAxialPosition {
-	return &PercentAxialPosition{percent: val}
+	par := new(PercentAxialPosition)
+	par.percent = val
+
+	return par
 }

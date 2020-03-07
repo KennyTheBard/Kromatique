@@ -2,22 +2,25 @@ package main
 
 import (
 	lib "./lib"
-	effect "./lib/effect"
-	strategy "./lib/effect/strategy"
-	wrap "./lib/effect/wrap"
+	analysis "./lib/analysis"
+	filter "./lib/effect/filter"
+	scale "./lib/effect/scale"
 	utils "./lib/utils"
 	"fmt"
+	"image"
+	"image/color"
+	"math"
 )
 
 func main() {
 	img := utils.Load("../resources/test.jpg")
 
 	ke := lib.NewKromEngine(10, 0)
-	f := effect.MultiKernel{}
-	f.TransferTo(&ke)
-	f.EdgeHandling = strategy.Extend
-	f.ResultMerging = strategy.SobelGradient
-	f.Kernels = []wrap.Matrix{
+	f := filter.MultiKernel{}
+	f.TransferTo(ke)
+	f.EdgeHandling = filter.Extend
+	f.ResultMerging = filter.SobelGradient
+	f.Kernels = []utils.Matrix{
 		{
 			{1, 0, -1},
 			{2, 0, -2},
@@ -29,13 +32,39 @@ func main() {
 			{-1, -2, -1},
 		},
 	}
+	p1 := f.Apply(img)
 
-	n := effect.NewScale(
-		strategy.NewFixedScaleFactor(strategy.ScaleFactor{X: 0.71, Y: 0.71}),
-		strategy.CornerPixelsSampling)
-	n.TransferTo(&ke)
+	s := scale.NewScale(
+		scale.NewFixedScaleFactor(scale.ScaleFactor{X: 0.71, Y: 0.71}),
+		scale.CornerPixelsSampling)
+	s.TransferTo(ke)
+	p2 := s.Apply(p1.Result())
+	res := p2.Result()
 
-	if err := utils.Save(n.Apply(f.Apply(img).Result()).Result(), "../resources/result", "jpg"); err != nil {
+	data := analysis.NewAnalyzerRunner([]analysis.Analyze{func(img image.Image, x int, y int, m map[string]interface{}) {
+		var size float64
+		if s, ok := m["size"]; ok {
+			size = s.(float64)
+		} else {
+			size = float64(img.Bounds().Dx() * img.Bounds().Dy())
+			m["size"] = size
+		}
+
+		val, _, _, _ := color.Gray16Model.Convert(img.At(x, y)).RGBA()
+
+		if t, ok := m["total"]; ok {
+			m["total"] = t.(float64) + float64(val)/size
+		} else {
+			m["total"] = float64(val) / size
+		}
+	}}).Run(res)
+
+	gray := utils.ClampUint16(math.Round(data["total"].(float64)))
+	utils.CreateBackground(res.Bounds(), color.Gray16{Y: uint16(gray)})
+	fmt.Println(data["total"])
+
+	if err := utils.Save(utils.CreateBackground(res.Bounds(), color.Gray16{Y: uint16(gray)}),
+		"../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 

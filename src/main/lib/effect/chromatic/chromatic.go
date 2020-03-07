@@ -1,4 +1,4 @@
-package effect
+package chromatic
 
 import (
 	"fmt"
@@ -7,14 +7,14 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
-	utils "../utils"
+	core "../.."
+	utils "../../utils"
 )
 
-// ChromaticTransformation is an interface that defines the processing
+// Transformation is an interface that defines the processing
 // of information of a single pixel of the image, allowing to create a
 // great range of chromatic operations with minimum code duplication
-type ChromaticTransformation interface {
+type Transformation interface {
 	Transform(color.Color) color.Color
 }
 
@@ -69,11 +69,11 @@ func (t NegativeTransformation) Transform(in color.Color) color.Color {
 // GenericChromatic serves as a generic customizable structure that encapsulates
 // the logic needed to apply a chromatic transformation on a pixel of an image
 type GenericChromatic struct {
-	core.BaseEffect
-	trans ChromaticTransformation
+	core.Base
+	trans Transformation
 }
 
-func (effect *GenericChromatic) Apply(img image.Image) core.Promise {
+func (effect *GenericChromatic) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
@@ -89,5 +89,5 @@ func (effect *GenericChromatic) Apply(img image.Image) core.Promise {
 		}
 	}
 
-	return core.NewPromise(ret, &contract)
+	return core.NewPromise(ret, contract)
 }

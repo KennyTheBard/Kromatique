@@ -19,6 +19,10 @@ func (p Promise) Result() image.Image {
 
 // NewPromise creates a new promise with the image still in work
 // and a reference to the order contract of the appliance instance
-func NewPromise(img image.Image, contract *OrderContract) Promise {
-	return Promise{img: img, contract: contract}
+func NewPromise(img image.Image, contract *OrderContract) *Promise {
+	p := new(Promise)
+	p.img = img
+	p.contract = contract
+
+	return p
 }

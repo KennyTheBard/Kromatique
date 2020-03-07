@@ -1,4 +1,4 @@
-package strategy
+package scale
 
 import "image"
 
@@ -49,8 +49,11 @@ func (s FixedSize) Size(bounds image.Rectangle) image.Rectangle {
 	return s.targetSize
 }
 
-func NewFixedSize(targetSize image.Rectangle) FixedSize {
-	return FixedSize{targetSize: targetSize}
+func NewFixedSize(targetSize image.Rectangle) *FixedSize {
+	fs := new(FixedSize)
+	fs.targetSize = targetSize
+
+	return fs
 }
 
 // FixedScaleFactor is an implementation of the ScaleFactorStrategy that
@@ -72,6 +75,9 @@ func (s FixedScaleFactor) Size(bounds image.Rectangle) image.Rectangle {
 		int(float64(bounds.Max.Y)*s.factor.Y))
 }
 
-func NewFixedScaleFactor(factor ScaleFactor) FixedScaleFactor {
-	return FixedScaleFactor{factor: factor}
+func NewFixedScaleFactor(factor ScaleFactor) *FixedScaleFactor {
+	fsf := new(FixedScaleFactor)
+	fsf.factor = factor
+
+	return fsf
 }

@@ -10,7 +10,7 @@ type KromEngine struct {
 }
 
 // Contract returns a contract for the given number of tasks
-func (krom *KromEngine) Contract(orderSize int) OrderContract {
+func (krom *KromEngine) Contract(orderSize int) *OrderContract {
 	return NewContract(orderSize, krom.orderQueue)
 }
 
@@ -21,8 +21,9 @@ func (krom *KromEngine) Stop() {
 
 // NewKromEngine creates a new KromEngine with a given number of workers
 // and a given task queue size
-func NewKromEngine(workForce, queueSize int) KromEngine {
-	ke := KromEngine{workForce: workForce}
+func NewKromEngine(workForce, queueSize int) *KromEngine {
+	ke := new(KromEngine)
+	ke.workForce = workForce
 	ke.orderQueue = make(OrderQueue, queueSize)
 
 	for i := 0; i < workForce; i++ {
