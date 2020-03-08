@@ -1,26 +1,27 @@
 package main
 
 import (
-	lib "./lib"
-	analysis "./lib/analysis"
-	filter "./lib/effect/filter"
-	scale "./lib/effect/scale"
-	utils "./lib/utils"
 	"fmt"
 	"image"
 	"image/color"
-	"math"
+
+	. "./lib"
+	. "./lib/analysis"
+	. "./lib/effect/filter"
+	. "./lib/effect/normalization"
+	. "./lib/effect/scale"
+	. "./lib/utils"
 )
 
 func main() {
-	img := utils.Load("../resources/test.jpg")
+	img := Load("../resources/test.jpg")
 
-	ke := lib.NewKromEngine(10, 0)
-	f := filter.MultiKernel{}
+	ke := NewKromEngine(10, 0)
+	f := MultiKernel{}
 	f.TransferTo(ke)
-	f.EdgeHandling = filter.Extend
-	f.ResultMerging = filter.SobelGradient
-	f.Kernels = []utils.Matrix{
+	f.EdgeHandling = Extend
+	f.ResultMerging = SobelGradient
+	f.Kernels = []Matrix{
 		{
 			{1, 0, -1},
 			{2, 0, -2},
@@ -34,37 +35,42 @@ func main() {
 	}
 	p1 := f.Apply(img)
 
-	s := scale.NewScale(
-		scale.NewFixedScaleFactor(scale.ScaleFactor{X: 0.71, Y: 0.71}),
-		scale.CornerPixelsSampling)
+	s := NewScale(
+		NewFixedScaleFactor(ScaleFactor{X: 0.71, Y: 0.71}),
+		CornerPixelsSampling)
 	s.TransferTo(ke)
 	p2 := s.Apply(p1.Result())
 	res := p2.Result()
 
-	data := analysis.NewAnalyzerRunner([]analysis.Analyze{func(img image.Image, x int, y int, m map[string]interface{}) {
-		var size float64
-		if s, ok := m["size"]; ok {
-			size = s.(float64)
-		} else {
-			size = float64(img.Bounds().Dx() * img.Bounds().Dy())
-			m["size"] = size
-		}
-
+	data := NewAnalyzerRunner([]Analyze{func(img image.Image, x int, y int, m map[string]interface{}) {
 		val, _, _, _ := color.Gray16Model.Convert(img.At(x, y)).RGBA()
 
-		if t, ok := m["total"]; ok {
-			m["total"] = t.(float64) + float64(val)/size
+		if t, ok := m["min"]; ok {
+			if val < t.(uint32) {
+				m["min"] = val
+			}
 		} else {
-			m["total"] = float64(val) / size
+			m["min"] = val
+		}
+
+		if t, ok := m["max"]; ok {
+			if val > t.(uint32) {
+				m["max"] = val
+			}
+		} else {
+			m["max"] = val
 		}
 	}}).Run(res)
 
-	gray := utils.ClampUint16(math.Round(data["total"].(float64)))
-	utils.CreateBackground(res.Bounds(), color.Gray16{Y: uint16(gray)})
-	fmt.Println(data["total"])
+	fmt.Println(data)
 
-	if err := utils.Save(utils.CreateBackground(res.Bounds(), color.Gray16{Y: uint16(gray)}),
-		"../resources/result", "jpg"); err != nil {
+	n := NewNormalization(
+		NewColorInterval(data["min"].(uint32), data["max"].(uint32)),
+		NewColorInterval(MaxUint16/4, MaxUint16/4*3))
+	n.TransferTo(ke)
+	p3 := n.Apply(res)
+
+	if err := Save(p3.Result(), "../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 
