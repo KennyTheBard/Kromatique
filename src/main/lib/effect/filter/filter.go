@@ -1,12 +1,13 @@
 package filter
 
 import (
-	core "../.."
-	utils "../../utils"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+
+	core "../.."
+	"../../utils"
 )
 
 // SingleKernel encapsulates the data needed for a filter using a single kernel

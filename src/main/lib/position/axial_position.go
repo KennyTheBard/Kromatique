@@ -1,8 +1,9 @@
 package position
 
 import (
-	utils "../utils"
 	"math"
+
+	"../utils"
 )
 
 // AxialPosition is a position interface that treats just one axis

@@ -1,13 +1,14 @@
 package overlay
 
 import (
-	core "../.."
-	position "../../position"
-	utils "../../utils"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+
+	core "../.."
+	"../../position"
+	"../../utils"
 )
 
 // Overlay encapsulates the data needed to apply an overlay image

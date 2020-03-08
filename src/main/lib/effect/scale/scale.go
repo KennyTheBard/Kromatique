@@ -1,11 +1,12 @@
 package scale
 
 import (
-	core "../.."
-	utils "../../utils"
 	"fmt"
 	"image"
 	"image/draw"
+
+	core "../.."
+	"../../utils"
 )
 
 type Scale struct {

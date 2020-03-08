@@ -1,10 +1,11 @@
 package scale
 
 import (
-	utils "../../utils"
 	"image"
 	"image/color"
 	"math"
+
+	"../../utils"
 )
 
 type ColorSamplingStrategy func(image.Image, int, int, ScaleFactor) color.Color

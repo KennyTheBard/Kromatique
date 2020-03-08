@@ -8,7 +8,7 @@ import (
 	"math"
 
 	core "../.."
-	utils "../../utils"
+	"../../utils"
 )
 
 // Transformation is an interface that defines the processing
