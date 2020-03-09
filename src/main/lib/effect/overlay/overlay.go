@@ -14,16 +14,16 @@ import (
 // Overlay encapsulates the data needed to apply an overlay image
 type Overlay struct {
 	core.Base
-	Stamp   image.Image
-	Origin  position.Position
-	Opacity float64
+	stamp   image.Image
+	origin  position.Position
+	opacity float64
 }
 
 func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
-	stampBounds := effect.Stamp.Bounds()
-	origin := effect.Origin.Get(img.Bounds())
+	stampBounds := effect.stamp.Bounds()
+	origin := effect.origin.Get(img.Bounds())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -36,12 +36,12 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 					continue
 				}
 
-				or, og, ob, oa := effect.Stamp.At(x-origin.X, y-origin.Y).RGBA()
+				or, og, ob, oa := effect.stamp.At(x-origin.X, y-origin.Y).RGBA()
 
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 				} else {
-					opacity := utils.LERP(float64(oa)/utils.MaxUint16, 0.0, effect.Opacity)
+					opacity := utils.LERP(float64(oa)/utils.MaxUint16, 0.0, effect.opacity)
 
 					if opacity == utils.MaxUint16 {
 						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
@@ -68,4 +68,13 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
+}
+
+func NewOverlay(stamp image.Image, origin position.Position, opacity float64) *Overlay {
+	o := new(Overlay)
+	o.stamp = stamp
+	o.origin = origin
+	o.opacity = opacity
+
+	return o
 }

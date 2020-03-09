@@ -9,7 +9,11 @@ import (
 	. "./lib/analysis"
 	. "./lib/effect/filter"
 	. "./lib/effect/normalization"
+	. "./lib/effect/overlay"
 	. "./lib/effect/scale"
+	. "./lib/geometry"
+	. "./lib/position"
+	. "./lib/render"
 	. "./lib/utils"
 )
 
@@ -40,7 +44,7 @@ func main() {
 		CornerPixelsSampling)
 	s.TransferTo(ke)
 	p2 := s.Apply(p1.Result())
-	res := p2.Result()
+	tmp := p2.Result()
 
 	data := NewAnalyzerRunner([]Analyze{func(img image.Image, x int, y int, m map[string]interface{}) {
 		val, _, _, _ := color.Gray16Model.Convert(img.At(x, y)).RGBA()
@@ -60,17 +64,29 @@ func main() {
 		} else {
 			m["max"] = val
 		}
-	}}).Run(res)
-
-	fmt.Println(data)
+	}}).Run(tmp)
 
 	n := NewNormalization(
 		NewColorInterval(data["min"].(uint32), data["max"].(uint32)),
 		NewColorInterval(MaxUint16/4, MaxUint16/4*3))
 	n.TransferTo(ke)
-	p3 := n.Apply(res)
+	p3 := n.Apply(tmp)
 
-	if err := Save(p3.Result(), "../resources/result", "jpg"); err != nil {
+	path := NewSegment(NewPoint2D(0, 0), NewPoint2D(500, 500))
+	line := NewLine(path, NewSimpleLineRenderer(10, color.RGBA{
+		R: 255,
+		G: 0,
+		B: 0,
+		A: 255,
+	}))
+	line.TransferTo(ke)
+	p4 := line.Render(image.Rect(0, 0, 600, 600))
+
+	o := NewOverlay(p4.Result(), NewFixedPosition(100, 100), 0.75)
+	o.TransferTo(ke)
+	p5 := o.Apply(p3.Result())
+
+	if err := Save(p5.Result(), "../resources/result", "jpg"); err != nil {
 		fmt.Println(err.Error())
 	}
 
