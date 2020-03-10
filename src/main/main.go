@@ -73,7 +73,7 @@ func main() {
 	p3 := n.Apply(tmp)
 
 	path := NewSegment(NewPoint2D(0, 0), NewPoint2D(500, 500))
-	line := NewLine(path, NewSimpleLineRenderer(10, color.RGBA{
+	line := NewLine(path, NewSprayRenderer(10, color.RGBA{
 		R: 255,
 		G: 0,
 		B: 0,
@@ -82,11 +82,11 @@ func main() {
 	line.TransferTo(ke)
 	p4 := line.Render(image.Rect(0, 0, 600, 600))
 
-	o := NewOverlay(p4.Result(), NewFixedPosition(100, 100), 0.75)
+	o := NewOverlay(p4.Result(), NewFixedPosition(100, 100), 1.00)
 	o.TransferTo(ke)
 	p5 := o.Apply(p3.Result())
 
-	if err := Save(p5.Result(), "../resources/result", "jpg"); err != nil {
+	if err := Save(p5.Result(), "../resources/result", "png"); err != nil {
 		fmt.Println(err.Error())
 	}
 

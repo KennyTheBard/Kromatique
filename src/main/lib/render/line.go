@@ -10,6 +10,8 @@ import (
 	"math"
 )
 
+// Line encapsulates the data needed to draw a line
+// along a given path, with a given renderer
 type Line struct {
 	core.Base
 	path     geometry.Path
