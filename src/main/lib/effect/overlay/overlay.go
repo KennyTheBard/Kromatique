@@ -41,7 +41,7 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 				} else {
-					opacity := utils.LERP(float64(oa)/utils.MaxUint16, 0.0, effect.opacity)
+					opacity := utils.LERP(0.0, float64(oa)/utils.MaxUint16, effect.opacity)
 
 					if opacity == utils.MaxUint16 {
 						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
