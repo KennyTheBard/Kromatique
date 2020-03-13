@@ -70,9 +70,42 @@ func main() {
 		NewColorInterval(data["min"].(uint32), data["max"].(uint32)),
 		NewColorInterval(MaxUint16/4, MaxUint16/4*3))
 	n.TransferTo(ke)
-	p3 := n.Apply(tmp)
+	//p3 := n.Apply(tmp)
+	//
+	//path := NewSegment(NewPoint2D(100, 100), NewPoint2D(300, 300))
+	//line := NewLine(path, NewSprayRenderer(10, color.RGBA{
+	//	R: 255,
+	//	G: 0,
+	//	B: 0,
+	//	A: 255,
+	//}))
+	//line.TransferTo(ke)
+	//p4 := line.Render(image.Rect(0, 0, 600, 600))
+	//
+	//o := NewOverlay(p4.Result(), NewFixedPosition(100, 100), 1.00)
+	//o.TransferTo(ke)
+	//p5 := o.Apply(p3.Result())
+	//
+	//if err := Save(p5.Result(), "../resources/result", "png"); err != nil {
+	//	fmt.Println(err.Error())
+	//}
 
-	path := NewSegment(NewPoint2D(0, 0), NewPoint2D(500, 500))
+	test(ke)
+
+	ke.Stop()
+}
+
+func test(ke *KromEngine) {
+
+	//
+	//for i := 0.0; i <= 1.0; i += 0.1 {
+	//	fmt.Println(PixelLERP(
+	//		color.RGBA64{65535, 0, 0, 0},
+	//		color.RGBA64{65535, 0, 0, 65535},
+	//		i))
+	//}
+
+	path := NewSegment(NewPoint2D(15, 15), NewPoint2D(100, 100))
 	line := NewLine(path, NewSprayRenderer(10, color.RGBA{
 		R: 255,
 		G: 0,
@@ -80,15 +113,14 @@ func main() {
 		A: 255,
 	}))
 	line.TransferTo(ke)
-	p4 := line.Render(image.Rect(0, 0, 600, 600))
+	p := line.Render(image.Rect(0, 0, 120, 120))
+	img := p.Result()
 
-	o := NewOverlay(p4.Result(), NewFixedPosition(100, 100), 1.00)
+	o := NewOverlay(CreateBackground(img.Bounds(), color.Black), NewFixedPosition(0, 0), 1.00)
 	o.TransferTo(ke)
-	p5 := o.Apply(p3.Result())
+	p2 := o.Apply(img)
 
-	if err := Save(p5.Result(), "../resources/result", "png"); err != nil {
+	if err := Save(p2.Result(), "../resources/result", "jpeg"); err != nil {
 		fmt.Println(err.Error())
 	}
-
-	ke.Stop()
 }

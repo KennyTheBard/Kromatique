@@ -10,6 +10,9 @@ import (
 	"math"
 )
 
+const desiredDistance = 0.5
+const testStep = 0.01
+
 // Line encapsulates the data needed to draw a line
 // along a given path, with a given renderer
 type Line struct {
@@ -24,23 +27,30 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 	proximityMap := make([][]int, bounds.Dy())
 	for i := 0; i < bounds.Dy(); i++ {
 		proximityMap[i] = make([]int, bounds.Dx())
+		for j := 0; j < bounds.Dx(); j++ {
+			proximityMap[i][j] = -1
+		}
 	}
+
+	// calculate the step needed to get as many pixels from
+	// the path with as few points as possible
+	step := (testStep * desiredDistance) / dist(l.path.GetPoint(0.0), l.path.GetPoint(testStep))
 
 	// create a queue of closest pixels to the path
 	queue := make([]image.Point, 0)
-	for i := 0.0; i < 1.0; i += 0.01 {
+	for i := 0.0; i <= 1.0; i += step {
 		// approximate the pixel coordinates
 		p := l.path.GetPoint(i)
 		y := int(math.Floor(p.Y))
 		x := int(math.Floor(p.X))
 
 		// reduce redundancy in the queue loop
-		if proximityMap[y][x] == 0 {
+		if proximityMap[y][x] == -1 {
 			queue = append(queue, image.Pt(x, y))
 		}
 
 		// set base value for the closest pixels to the paths
-		proximityMap[y][x] = 1
+		proximityMap[y][x] = 0
 	}
 
 	// iterate through the queued pixels
@@ -65,8 +75,8 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 
 		// compute proximity value for current pixel based on
 		// highest value among the neighbours
-		if proximityMap[p.Y][p.X] == 0 {
-			max := 0
+		if proximityMap[p.Y][p.X] < 0 {
+			max := -1
 			for _, n := range neighbours {
 				if max < proximityMap[n.Y][n.X] {
 					max = proximityMap[n.Y][n.X]
@@ -84,7 +94,7 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 
 		// add unexplored neighbouring pixels in the queue
 		for _, n := range neighbours {
-			if proximityMap[n.Y][n.X] == 0 {
+			if proximityMap[n.Y][n.X] == -1 {
 				queue = append(queue, n)
 			}
 		}
@@ -106,6 +116,10 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
+}
+
+func dist(p1 *utils.Point2D, p2 *utils.Point2D) float64 {
+	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
 func inRectangle(x, y int, rect image.Rectangle) bool {

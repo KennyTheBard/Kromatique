@@ -22,11 +22,11 @@ func (r MatteRenderer) Width() int {
 }
 
 func (r MatteRenderer) Render(proximity int) color.Color {
-	if proximity != 0 {
-		return r.color
+	if proximity < 0 {
+		return color.Transparent
 	}
 
-	return color.Transparent
+	return r.color
 }
 
 func NewMatteRenderer(width int, color color.Color) *MatteRenderer {
@@ -48,18 +48,18 @@ func (sr SprayRenderer) Width() int {
 }
 
 func (sr SprayRenderer) Render(proximity int) color.Color {
-	if proximity == 0 {
+	if proximity < 0 {
 		return color.Transparent
 	}
 
 	r, g, b, _ := sr.color.RGBA()
 	return utils.PixelLERP(
+		sr.color,
 		color.RGBA64{
 			R: uint16(r),
 			G: uint16(g),
 			B: uint16(b),
 			A: 0},
-		sr.color,
 		float64(proximity)/float64(sr.width))
 }
 
