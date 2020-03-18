@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"math"
 )
 
 // Overlay encapsulates the data needed to apply an overlay image
@@ -36,25 +37,25 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 				}
 
 				or, og, ob, oa := effect.stamp.At(x-origin.X, y-origin.Y).RGBA()
-				oRatio := float64(oa) / utils.MaxUint16
+				oRatio := float64(oa) / math.MaxUint16
 
 				if oa == 0 {
 					ret.(draw.Image).Set(x, y, img.At(x, y))
 				} else {
-					opacity := utils.LERP(0.0, float64(oa)/utils.MaxUint16, effect.opacity)
+					opacity := utils.LERP(0.0, float64(oa)/math.MaxUint16, effect.opacity)
 
-					if opacity == utils.MaxUint16 {
+					if opacity == math.MaxUint16 {
 						ret.(draw.Image).Set(x, y, color.RGBA64{R: uint16(or), G: uint16(og), B: uint16(ob)})
 					} else {
 						r, g, b, a := img.At(x, y).RGBA()
-						ratio := float64(a) / utils.MaxUint16
+						ratio := float64(a) / math.MaxUint16
 
 						newRed := utils.LERP(float64(or)*oRatio, float64(r)*ratio, opacity)
 						newGreen := utils.LERP(float64(og)*oRatio, float64(g)*ratio, opacity)
 						newBlue := utils.LERP(float64(ob)*oRatio, float64(b)*ratio, opacity)
 						newAlpha := utils.LERP(float64(a),
-							utils.MaxUint16,
-							utils.LERP(utils.MinUint16, float64(oa), opacity)/utils.MaxUint16)
+							math.MaxUint16,
+							utils.LERP(0, float64(oa), opacity)/math.MaxUint16)
 
 						ret.(draw.Image).Set(x, y, color.RGBA64{
 							R: uint16(utils.ClampUint16(newRed)),

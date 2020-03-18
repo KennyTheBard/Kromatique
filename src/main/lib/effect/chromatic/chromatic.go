@@ -59,9 +59,9 @@ type NegativeTransformation struct{}
 
 func (t NegativeTransformation) Transform(in color.Color) color.Color {
 	r, g, b, a := in.RGBA()
-	newRed := utils.MaxUint16 - r
-	newGreen := utils.MaxUint16 - g
-	newBlue := utils.MaxUint16 - b
+	newRed := math.MaxUint16 - r
+	newGreen := math.MaxUint16 - g
+	newBlue := math.MaxUint16 - b
 
 	return color.RGBA64{R: uint16(newRed), G: uint16(newGreen), B: uint16(newBlue), A: uint16(a)}
 }
