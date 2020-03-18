@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	. "./lib"
 	. "./lib/effect/distortion"
-	. "./lib/effect/filter"
+	"./lib/effect/filter"
 	. "./lib/effect/mapper"
+	. "./lib/effect/mirror"
 	. "./lib/utils"
 )
 
@@ -32,7 +34,7 @@ func main() {
 	cmr.Add(ColorMapperFactory(
 		func(col color.Color) bool {
 			r, g, b, _ := col.RGBA()
-			return r+g+b < MaxUint16*3/2
+			return r+g+b < math.MaxUint16*3/2
 		},
 		func(col color.Color) color.Color {
 			_, _, _, a := col.RGBA()
@@ -47,20 +49,25 @@ func main() {
 	cmr.Add(ColorMapperFactory(
 		func(col color.Color) bool {
 			r, g, b, _ := col.RGBA()
-			return r+g+b > MaxUint16*3/2
+			return r+g+b > math.MaxUint16*3/2
 		},
 		func(col color.Color) color.Color {
 			_, _, _, a := col.RGBA()
 			return color.RGBA64{
-				R: MaxUint16,
-				G: MaxUint16,
-				B: MaxUint16,
+				R: math.MaxUint16,
+				G: math.MaxUint16,
+				B: math.MaxUint16,
 				A: uint16(a),
 			}
 		}))
-
 	p := cmr.Apply(img)
-	if err := Save(p.Result(), "../resources/result1", "jpeg"); err != nil {
+
+	m := NewHorizontalMirror()
+	m.TransferTo(ke)
+
+	pm := m.Apply(p.Result())
+
+	if err := Save(pm.Result(), "../resources/result1", "jpeg"); err != nil {
 		fmt.Println(err.Error())
 	}
 
@@ -75,7 +82,7 @@ func main() {
 	}
 
 	fishEye := NewFishEyeLens(Pt2D(350, 350), 200, 10)
-	d := NewDistortion(Extend, fishEye)
+	d := NewDistortion(filter.Extend, fishEye)
 	d.TransferTo(ke)
 
 	if err := Save(d.Apply(img).Result(), "../resources/result2", "jpeg"); err != nil {
