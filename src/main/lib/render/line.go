@@ -34,7 +34,7 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 
 	// calculate the step needed to get as many pixels from
 	// the path with as few points as possible
-	step := (testStep * desiredDistance) / dist(l.path.GetPoint(0.0), l.path.GetPoint(testStep))
+	step := (testStep * desiredDistance) / l.path.GetPoint(0.0).Dist(l.path.GetPoint(testStep))
 
 	// create a queue of closest pixels to the path
 	queue := make([]image.Point, 0)
@@ -116,10 +116,6 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func dist(p1 *utils.Point2D, p2 *utils.Point2D) float64 {
-	return math.Sqrt((p1.X-p2.X)*(p1.X-p2.X) + (p1.Y-p2.Y)*(p1.Y-p2.Y))
 }
 
 func inRectangle(x, y int, rect image.Rectangle) bool {
