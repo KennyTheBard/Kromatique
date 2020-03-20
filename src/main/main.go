@@ -6,6 +6,7 @@ import (
 	"math"
 
 	. "./lib"
+	. "./lib/effect/difference"
 	. "./lib/effect/distortion"
 	"./lib/effect/filter"
 	. "./lib/effect/mapper"
@@ -71,21 +72,19 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	test := NewFishEyeLens(Pt2D(3, 3), 2, 0.5)
-	vm := test.VectorMap()
-	fmt.Printf("(%d, %d) to (%d, %d)\n", vm.Bounds().Min.X, vm.Bounds().Min.Y, vm.Bounds().Max.X, vm.Bounds().Max.Y)
-	for y := vm.Bounds().Min.Y; y < vm.Bounds().Max.Y; y++ {
-		for x := vm.Bounds().Min.X; x < vm.Bounds().Max.X; x++ {
-			fmt.Printf("(%.2f, %.2f) ", vm.At(x, y).X, vm.At(x, y).Y)
-		}
-		fmt.Println()
-	}
-
 	fishEye := NewFishEyeLens(Pt2D(350, 350), 200, 10)
 	d := NewDistortion(filter.Extend, fishEye)
 	d.TransferTo(ke)
+	pd := d.Apply(img)
 
-	if err := Save(d.Apply(img).Result(), "../resources/result2", "jpeg"); err != nil {
+	if err := Save(pd.Result(), "../resources/result2", "jpeg"); err != nil {
+		fmt.Println(err.Error())
+	}
+
+	dif := NewDifference(BinaryDifferenceFactory(0.01, color.Black, color.White))
+	dif.TransferTo(ke)
+
+	if err := Save(dif.Apply(img, pd.Result()).Result(), "../resources/dif", "jpeg"); err != nil {
 		fmt.Println(err.Error())
 	}
 

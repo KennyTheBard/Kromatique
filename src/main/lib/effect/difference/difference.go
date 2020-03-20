@@ -12,14 +12,18 @@ import (
 
 type DifferenceStrategy func(color.Color, color.Color) color.Color
 
-func BinaryDifferenceFactory(true, false color.Color) DifferenceStrategy {
+func BinaryDifferenceFactory(delta float64, same, difference color.Color) DifferenceStrategy {
+	border := int(math.Round(delta * math.MaxUint16))
 	return func(c1, c2 color.Color) color.Color {
 		r1, g1, b1, a1 := c1.RGBA()
 		r2, g2, b2, a2 := c2.RGBA()
-		if r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2 {
-			return true
+		dif := utils.Abs(int(r1)-int(r2)) + utils.Abs(int(g1)-int(g2)) +
+			utils.Abs(int(b1)-int(b2)) + utils.Abs(int(a1)-int(a2))
+
+		if dif < border {
+			return same
 		} else {
-			return false
+			return difference
 		}
 	}
 }
