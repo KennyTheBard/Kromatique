@@ -6,9 +6,6 @@ import (
 	"math"
 
 	. "./lib"
-	. "./lib/effect/difference"
-	. "./lib/effect/distortion"
-	"./lib/effect/filter"
 	. "./lib/effect/mapper"
 	. "./lib/effect/mirror"
 	. "./lib/utils"
@@ -21,17 +18,6 @@ func main() {
 
 	cmr := NewColorMapperRunner()
 	cmr.TransferTo(ke)
-	//cmr.Add(ColorMapperFactory(
-	//	func(col color.Color) bool { return true },
-	//	func(col color.Color) color.Color {
-	//		r, g, b, a := col.RGBA()
-	//		return color.RGBA64{
-	//			R: uint16(MaxUint16 - r),
-	//			G: uint16(MaxUint16 - g),
-	//			B: uint16(MaxUint16 - b),
-	//			A: uint16(a),
-	//		}
-	//	}))
 	cmr.Add(ColorMapperFactory(
 		func(col color.Color) bool {
 			r, g, b, _ := col.RGBA()
@@ -68,23 +54,7 @@ func main() {
 
 	pm := m.Apply(p.Result())
 
-	if err := Save(pm.Result(), "../resources/result1", "jpeg"); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	fishEye := NewFishEyeLens(Pt2D(350, 350), 200, 10)
-	d := NewDistortion(filter.Extend, fishEye)
-	d.TransferTo(ke)
-	pd := d.Apply(img)
-
-	if err := Save(pd.Result(), "../resources/result2", "jpeg"); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	dif := NewDifference(BinaryDifferenceFactory(0.01, color.Black, color.White))
-	dif.TransferTo(ke)
-
-	if err := Save(dif.Apply(img, pd.Result()).Result(), "../resources/dif", "jpeg"); err != nil {
+	if err := Save(pm.Result(), "../resources/result", "jpeg"); err != nil {
 		fmt.Println(err.Error())
 	}
 
