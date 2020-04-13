@@ -6,8 +6,8 @@ import (
 	"math"
 
 	. "./lib"
+	. "./lib/effect/flip"
 	. "./lib/effect/mapper"
-	. "./lib/effect/mirror"
 	. "./lib/utils"
 )
 

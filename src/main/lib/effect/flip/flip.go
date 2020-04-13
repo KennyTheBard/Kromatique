@@ -1,4 +1,4 @@
-package mirror
+package flip
 
 import (
 	"fmt"
@@ -9,22 +9,22 @@ import (
 	"../../utils"
 )
 
-type Reflect func(int, int, image.Rectangle) (int, int)
+type FlipStrategy func(int, int, image.Rectangle) (int, int)
 
-func HorizontalReflect(x, y int, bounds image.Rectangle) (int, int) {
+func HorizontalFlip(x, y int, bounds image.Rectangle) (int, int) {
 	return bounds.Max.X - (x - bounds.Min.X), y
 }
 
-func VerticalReflect(x, y int, bounds image.Rectangle) (int, int) {
+func VerticalFlip(x, y int, bounds image.Rectangle) (int, int) {
 	return x, bounds.Max.Y - (y - bounds.Min.Y)
 }
 
-type Mirror struct {
+type Flip struct {
 	core.Base
-	reflect Reflect
+	strategy FlipStrategy
 }
 
-func (effect *Mirror) Apply(img image.Image) *core.Promise {
+func (effect *Flip) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 
@@ -32,7 +32,7 @@ func (effect *Mirror) Apply(img image.Image) *core.Promise {
 		y := i
 		if err := contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				newX, newY := effect.reflect(x, y, img.Bounds())
+				newX, newY := effect.strategy(x, y, img.Bounds())
 				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
 		}); err != nil {
@@ -44,17 +44,17 @@ func (effect *Mirror) Apply(img image.Image) *core.Promise {
 	return core.NewPromise(ret, contract)
 }
 
-func NewMirror(reflect Reflect) *Mirror {
-	m := new(Mirror)
-	m.reflect = reflect
+func NewMirror(strategy FlipStrategy) *Flip {
+	m := new(Flip)
+	m.strategy = strategy
 
 	return m
 }
 
-func NewHorizontalMirror() *Mirror {
-	return NewMirror(HorizontalReflect)
+func NewHorizontalMirror() *Flip {
+	return NewMirror(HorizontalFlip)
 }
 
-func NewVerticalMirror() *Mirror {
-	return NewMirror(VerticalReflect)
+func NewVerticalMirror() *Flip {
+	return NewMirror(VerticalFlip)
 }
