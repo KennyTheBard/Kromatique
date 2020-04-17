@@ -2,70 +2,53 @@ package utils
 
 type EasingFunction func(t float64) float64
 
-func Linear(t float64) float64 {
-	return t
-}
-
+// ease in functions
 func EaseInQuad(t float64) float64 {
 	return t * t
 }
 
-func EaseOutQuad(t float64) float64 {
-	return t * (2 - t)
-}
-
-func EaseInOutQuad(t float64) float64 {
-	if t < 0.5 {
-		return 2 * t * t
-	} else {
-		return -1 + (4-2*t)*t
-	}
-}
-
 func EaseInCubic(t float64) float64 {
-	return t * t * t
+	return t * EaseInQuad(t)
+}
+
+func EaseInQuart(t float64) float64 {
+	return t * EaseInCubic(t)
+}
+
+// ease out functions
+func EaseOutQuad(t float64) float64 {
+	return 1 - EaseInQuad(1-t)
 }
 
 func EaseOutCubic(t float64) float64 {
-	return t*(t-1)*(t-1) + 1
+	return 1 - EaseInCubic(1-t)
+}
+
+func EaseOutQuart(t float64) float64 {
+	return 1 - EaseInQuart(1-t)
+}
+
+// ease in out functions
+func EaseInOutQuad(t float64) float64 {
+	if t < 0.5 {
+		return EaseInQuad(2*t) / 2
+	} else {
+		return EaseOutQuad(2*(t-0.5)) / 2
+	}
 }
 
 func EaseInOutCubic(t float64) float64 {
 	if t < 0.5 {
-		return 4 * t * t * t
+		return EaseInCubic(2*t) / 2
 	} else {
-		return (t-1)*(2*t-2)*(2*t-2) + 1
+		return EaseOutCubic(2*(t-0.5)) / 2
 	}
-}
-
-func EaseInQuart(t float64) float64 {
-	return t * t * t * t
-}
-
-func EaseOutQuart(t float64) float64 {
-	return 1 - t*(t-1)*(t-1)*(t-1)
 }
 
 func EaseInOutQuart(t float64) float64 {
 	if t < 0.5 {
-		return 8 * t * t * t * t
+		return EaseInQuart(2*t) / 2
 	} else {
-		return 1 - 8*t*(t-1)*(t-1)*(t-1)
-	}
-}
-
-func EaseInQuint(t float64) float64 {
-	return t * t * t * t * t
-}
-
-func EaseOutQuint(t float64) float64 {
-	return 1 + t*(t-1)*(t-1)*(t-1)*(t-1)
-}
-
-func EaseInOutQuint(t float64) float64 {
-	if t < 0.5 {
-		return 16 * t * t * t * t * t
-	} else {
-		return 1 + 16*t*(t-1)*(t-1)*(t-1)*(t-1)
+		return EaseOutQuart(2*(t-0.5)) / 2
 	}
 }
