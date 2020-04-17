@@ -31,7 +31,7 @@ func (lens FishEyeLens) VecAt(x, y int) Vector {
 		return VecZero()
 	} else {
 		alpha := d / lens.radius
-		str := utils.LERP(0, lens.strength, alpha)
+		str := utils.LERP(0, lens.strength, 1-utils.EaseInQuad(alpha))
 
 		beta := utils.Clamp(str/d, 0, 1)
 		newX := utils.LERP(float64(x), lens.center.X, beta) - float64(x)
