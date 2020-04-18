@@ -13,7 +13,7 @@ type Path interface {
 
 // Segment encapsulates a simple straight path defined between 2 points
 type Segment struct {
-	start, end *utils.Point2D
+	start, end utils.Point2D
 }
 
 func (s Segment) GetPoint(t float64) utils.Point2D {
@@ -22,7 +22,7 @@ func (s Segment) GetPoint(t float64) utils.Point2D {
 		(1-t)*s.start.Y+t*s.end.Y)
 }
 
-func NewSegment(start, end *utils.Point2D) *Segment {
+func NewSegment(start, end utils.Point2D) *Segment {
 	s := new(Segment)
 	s.start = start
 	s.end = end
