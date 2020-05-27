@@ -1,21 +1,22 @@
-package overlay
+package effect
 
 import (
-	core "../.."
-	"../../position"
-	"../../utils"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
+
+	core ".."
+	"../utils"
 )
 
-// Overlay encapsulates the data needed to apply an overlay image
+// Overlay serves as a generic customizable structure that encapsulates
+// the logic needed to apply an overlay image
 type Overlay struct {
 	core.Base
 	stamp   image.Image
-	origin  position.Position
+	origin  image.Point
 	opacity float64
 }
 
@@ -23,7 +24,7 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.GetEngine().Contract(img.Bounds().Dy())
 	stampBounds := effect.stamp.Bounds()
-	origin := effect.origin.Get(img.Bounds())
+	origin := effect.origin
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -75,7 +76,7 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	return core.NewPromise(ret, contract)
 }
 
-func NewOverlay(stamp image.Image, origin position.Position, opacity float64) *Overlay {
+func NewOverlay(stamp image.Image, origin image.Point, opacity float64) *Overlay {
 	o := new(Overlay)
 	o.stamp = stamp
 	o.origin = origin

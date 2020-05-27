@@ -1,4 +1,4 @@
-package normalization
+package effect
 
 import (
 	"fmt"
@@ -7,10 +7,12 @@ import (
 	"image/draw"
 	"math"
 
-	core "../.."
-	"../../utils"
+	core ".."
+	"../utils"
 )
 
+// Normalization serves as a generic customizable structure that encapsulates
+// the logic needed to normalize the color values of an image
 type Normalization struct {
 	core.Base
 	sourceInterval, targetInterval *utils.ColorInterval

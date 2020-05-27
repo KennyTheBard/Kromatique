@@ -1,18 +1,24 @@
-package difference
+package effect
 
 import (
-	core "../.."
-	"../../utils"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"math"
+
+	core ".."
+	"../utils"
 )
 
+// DifferenceStrategy takes 2 colors and return a difference between them based
+// on the logic it contains
 type DifferenceStrategy func(color.Color, color.Color) color.Color
 
-func BinaryDifferenceFactory(delta float64, same, difference color.Color) DifferenceStrategy {
+// BinaryDifference returns a DifferenceStrategy that for 2 colors that are more
+// different (in matter of color channels) than a threshold, returns a predefined
+// color, otherwise returns other predefined color, reducing the image to only 2 colors
+func BinaryDifference(delta float64, same, difference color.Color) DifferenceStrategy {
 	border := int(math.Round(delta * math.MaxUint16))
 	return func(c1, c2 color.Color) color.Color {
 		r1, g1, b1, a1 := c1.RGBA()
@@ -28,7 +34,10 @@ func BinaryDifferenceFactory(delta float64, same, difference color.Color) Differ
 	}
 }
 
-func ColorChannelDifferenceStrategy(c1, c2 color.Color) color.Color {
+// ChannelDifference returns a DifferenceStrategy that returns the absolute value of
+// the effective difference of 2 colors, channel by channel; for example, the difference
+// for red and blue will be magenta, as both channels will be returned at maximum value
+func ChannelDifference(c1, c2 color.Color) color.Color {
 	r1, g1, b1, _ := c1.RGBA()
 	r2, g2, b2, _ := c2.RGBA()
 	return color.RGBA64{
@@ -37,17 +46,18 @@ func ColorChannelDifferenceStrategy(c1, c2 color.Color) color.Color {
 		B: uint16(utils.Abs(int(b1) - int(b2))),
 		A: math.MaxUint16,
 	}
-
 }
 
+// Difference serves as a generic customizable structure that encapsulates
+// the logic needed to apply a given difference strategy
 type Difference struct {
-	core.Base
-	diff DifferenceStrategy
+	engine *core.KromEngine
+	diff   DifferenceStrategy
 }
 
 func (effect *Difference) Apply(imgA, imgB image.Image) *core.Promise {
 	ret := utils.CreateRGBA(imgA.Bounds())
-	contract := effect.GetEngine().Contract(imgA.Bounds().Dy())
+	contract := effect.engine.Contract(imgA.Bounds().Dy())
 
 	for i := imgA.Bounds().Min.Y; i < imgA.Bounds().Max.Y; i++ {
 		y := i

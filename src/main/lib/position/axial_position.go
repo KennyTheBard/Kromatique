@@ -7,8 +7,7 @@ import (
 )
 
 // AxialPosition is a position interface that treats just one axis
-// and is useful for composing relative positions with axial positions
-// of different types
+// and is useful for composing axial positions of different types
 type AxialPosition interface {
 	Get(start, end int) int
 }
