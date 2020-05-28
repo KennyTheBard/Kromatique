@@ -7,20 +7,20 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
 // Normalization serves as a generic customizable structure that encapsulates
 // the logic needed to normalize the color values of an image
 type Normalization struct {
-	core.Base
+	engine                         core.Engine
 	sourceInterval, targetInterval *utils.ColorInterval
 }
 
 func (effect *Normalization) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 	ratio := float64(effect.targetInterval.Max()-effect.targetInterval.Min()) /
 		float64(effect.sourceInterval.Max()-effect.sourceInterval.Min())
 
@@ -41,12 +41,4 @@ func (effect *Normalization) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewNormalization(source, target *utils.ColorInterval) *Normalization {
-	n := new(Normalization)
-	n.sourceInterval = source
-	n.targetInterval = target
-
-	return n
 }

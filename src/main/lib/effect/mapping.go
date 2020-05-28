@@ -7,20 +7,19 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
 // ColorMapperCondition filters colors based on contained logic
 type ColorMapperCondition func(color.Color) bool
 
-// ColorMapper modifies a color using contained logic
-type ColorMapper func(color.Color) color.Color
+// MappingRule modifies a color using contained logic
+type MappingRule func(color.Color) color.Color
 
-// Condition returns a copy of the color mapper conditioned with
+// Condition returns a copy of the MappingRule conditioned with
 // the given condition; this can be helpful in order to chain conditions
-func (m ColorMapper) Condition(condition ColorMapperCondition) ColorMapper {
-
+func (m MappingRule) Condition(condition ColorMapperCondition) MappingRule {
 	return func(color color.Color) color.Color {
 		if condition(color) {
 			return m(color)
@@ -38,7 +37,7 @@ func Grayscale(in color.Color) color.Color {
 
 // GrayscaleRatioFactory returns a grayscale mapper that uses
 // the given ration to calculate the resulting shade of gray
-func GrayscaleRatioFactory(redRatio, greenRatio, blueRatio float64) ColorMapper {
+func GrayscaleRatioFactory(redRatio, greenRatio, blueRatio float64) MappingRule {
 	return func(in color.Color) color.Color {
 		r, g, b, a := in.RGBA()
 		gray := utils.ClampUint16(math.Floor(float64(r)*redRatio + float64(g)*greenRatio + float64(b)*blueRatio))
@@ -66,24 +65,24 @@ func Negative(in color.Color) color.Color {
 	return color.RGBA64{R: uint16(newRed), G: uint16(newGreen), B: uint16(newBlue), A: uint16(a)}
 }
 
-// ColorMapperRunner serves as a generic customizable structure that encapsulates
-// the logic needed to apply a series of mappers on an image
-type ColorMapperRunner struct {
-	core.Base
-	mappers []ColorMapper
+// ColorMapper serves as a generic customizable structure that encapsulates
+// the logic needed to apply a series of MappingRule on an image
+type ColorMapper struct {
+	engine core.Engine
+	rules  []MappingRule
 }
 
-func (effect *ColorMapperRunner) Apply(img image.Image) *core.Promise {
+func (effect *ColorMapper) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
 		if err := contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				currentColor := img.At(x, y)
-				for _, mapper := range effect.mappers {
-					currentColor = mapper(currentColor)
+				for _, rule := range effect.rules {
+					currentColor = rule(currentColor)
 				}
 
 				ret.(draw.Image).Set(x, y, currentColor)
@@ -95,11 +94,4 @@ func (effect *ColorMapperRunner) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewColorMapperRunner() *ColorMapperRunner {
-	cmr := new(ColorMapperRunner)
-	cmr.mappers = make([]ColorMapper, 0)
-
-	return cmr
 }

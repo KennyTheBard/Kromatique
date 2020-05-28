@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/draw"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
@@ -25,13 +25,13 @@ func VerticalFlip(x, y int, bounds image.Rectangle) (int, int) {
 // Flip serves as a generic customizable structure that encapsulates
 // the logic needed to apply a flipping strategy
 type Flip struct {
-	core.Base
+	engine   core.Engine
 	strategy FlipStrategy
 }
 
 func (effect *Flip) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
@@ -47,19 +47,4 @@ func (effect *Flip) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewFlip(strategy FlipStrategy) *Flip {
-	m := new(Flip)
-	m.strategy = strategy
-
-	return m
-}
-
-func NewHorizontalFlip() *Flip {
-	return NewFlip(HorizontalFlip)
-}
-
-func NewVerticalFlip() *Flip {
-	return NewFlip(VerticalFlip)
 }

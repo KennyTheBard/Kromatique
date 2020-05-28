@@ -7,7 +7,7 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
@@ -122,7 +122,7 @@ func CornerPixelsSampling(img image.Image, x, y int, factor ScaleFactor) color.C
 // Scale serves as a generic customizable structure that encapsulates
 // the logic needed to apply a scaling transformation on an image
 type Scale struct {
-	core.Base
+	engine                core.Engine
 	scaleFactorStrategy   ScaleFactorStrategy
 	colorSamplingStrategy ColorSamplingStrategy
 }
@@ -132,7 +132,7 @@ func (effect *Scale) Apply(img image.Image) *core.Promise {
 	trgBounds := effect.scaleFactorStrategy.Size(img.Bounds())
 
 	ret := utils.CreateRGBA(trgBounds)
-	contract := effect.GetEngine().Contract(ret.Bounds().Dy())
+	contract := effect.engine.Contract(ret.Bounds().Dy())
 
 	for i := ret.Bounds().Min.Y; i < ret.Bounds().Max.Y; i++ {
 		y := i
@@ -149,12 +149,4 @@ func (effect *Scale) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewScale(scaleFactorStrategy ScaleFactorStrategy, colorSamplingStrategy ColorSamplingStrategy) *Scale {
-	scale := new(Scale)
-	scale.scaleFactorStrategy = scaleFactorStrategy
-	scale.colorSamplingStrategy = colorSamplingStrategy
-
-	return scale
 }

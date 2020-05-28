@@ -7,7 +7,7 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
@@ -78,14 +78,14 @@ func Mirror(img *image.Image, x, y int) color.Color {
 // SingleKernel encapsulates the data needed for a filter using a single kernel
 // and implements the general way such a filter is applied on an image
 type SingleKernel struct {
-	core.Base
+	engine       core.Engine
 	edgeHandling EdgeHandlingStrategy
 	kernel       utils.Matrix
 }
 
 func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 	radius := effect.kernel.Radius()
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
@@ -119,14 +119,6 @@ func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 	return core.NewPromise(ret, contract)
 }
 
-func NewSingleKernel(edgeHandling EdgeHandlingStrategy, kernel utils.Matrix) *SingleKernel {
-	sk := new(SingleKernel)
-	sk.edgeHandling = edgeHandling
-	sk.kernel = kernel
-
-	return sk
-}
-
 // ResultMergingStrategy defines an interface for all functions used
 // to determine the merged result of multiple applied filters for MultiKernel
 type ResultMergingStrategy func([]float64) float64
@@ -145,7 +137,7 @@ func SobelGradient(results []float64) float64 {
 // MultiKernel encapsulates the logic data needed for a filter using multiple kernels
 // and implements a customizable way of defining the behaviour
 type MultiKernel struct {
-	core.Base
+	engine        core.Engine
 	edgeHandling  EdgeHandlingStrategy
 	resultMerging ResultMergingStrategy
 	kernels       []utils.Matrix
@@ -153,7 +145,7 @@ type MultiKernel struct {
 
 func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 
 	radiusNumber := len(effect.kernels)
 	radiusList := make([]int, len(effect.kernels))
@@ -196,13 +188,4 @@ func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewMultiKernel(edgeHandling EdgeHandlingStrategy, resultMerging ResultMergingStrategy, kernels []utils.Matrix) *MultiKernel {
-	mk := new(MultiKernel)
-	mk.edgeHandling = edgeHandling
-	mk.resultMerging = resultMerging
-	mk.kernels = kernels
-
-	return mk
 }

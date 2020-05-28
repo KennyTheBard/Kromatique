@@ -7,14 +7,14 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
 // Overlay serves as a generic customizable structure that encapsulates
 // the logic needed to apply an overlay image
 type Overlay struct {
-	core.Base
+	engine  core.Engine
 	stamp   image.Image
 	origin  image.Point
 	opacity float64
@@ -22,7 +22,7 @@ type Overlay struct {
 
 func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract(img.Bounds().Dy())
 	stampBounds := effect.stamp.Bounds()
 	origin := effect.origin
 
@@ -74,13 +74,4 @@ func (effect *Overlay) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewOverlay(stamp image.Image, origin image.Point, opacity float64) *Overlay {
-	o := new(Overlay)
-	o.stamp = stamp
-	o.origin = origin
-	o.opacity = opacity
-
-	return o
 }

@@ -6,7 +6,7 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
@@ -141,14 +141,14 @@ func (asm LensAssembly) VecAt(x, y int) Vector {
 // Distortion serves as a generic customizable structure that encapsulates
 // the logic needed to apply a distortion on a given image
 type Distortion struct {
-	core.Base
+	engine       core.Engine
 	edgeHandling EdgeHandlingStrategy
 	lens         Lens
 }
 
 func (effect *Distortion) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.GetEngine().Contract(ret.Bounds().Dy())
+	contract := effect.engine.Contract(ret.Bounds().Dy())
 
 	for i := ret.Bounds().Min.Y; i < ret.Bounds().Max.Y; i++ {
 		y := i
@@ -168,12 +168,4 @@ func (effect *Distortion) Apply(img image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewDistortion(edgeHandling EdgeHandlingStrategy, lens Lens) *Distortion {
-	d := new(Distortion)
-	d.edgeHandling = edgeHandling
-	d.lens = lens
-
-	return d
 }

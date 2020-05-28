@@ -1,7 +1,7 @@
 package render
 
 import (
-	core ".."
+	"../core"
 	"../geometry"
 	"../utils"
 	"fmt"
@@ -16,7 +16,7 @@ const testStep = 0.01
 // Line encapsulates the data needed to draw a line
 // along a given path, with a given renderer
 type Line struct {
-	core.Base
+	engine   core.Engine
 	path     geometry.Path
 	renderer Renderer
 }
@@ -101,7 +101,7 @@ func (l *Line) Render(bounds image.Rectangle) *core.Promise {
 	}
 
 	ret := utils.CreateRGBA(bounds)
-	contract := l.GetEngine().Contract(bounds.Dy())
+	contract := l.engine.Contract(bounds.Dy())
 
 	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
 		y := i

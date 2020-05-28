@@ -7,7 +7,7 @@ import (
 	"image/draw"
 	"math"
 
-	core ".."
+	"../core"
 	"../utils"
 )
 
@@ -51,7 +51,7 @@ func ChannelDifference(c1, c2 color.Color) color.Color {
 // Difference serves as a generic customizable structure that encapsulates
 // the logic needed to apply a given difference strategy
 type Difference struct {
-	engine *core.KromEngine
+	engine core.Engine
 	diff   DifferenceStrategy
 }
 
@@ -72,11 +72,4 @@ func (effect *Difference) Apply(imgA, imgB image.Image) *core.Promise {
 	}
 
 	return core.NewPromise(ret, contract)
-}
-
-func NewDifference(diff DifferenceStrategy) *Difference {
-	d := new(Difference)
-	d.diff = diff
-
-	return d
 }
