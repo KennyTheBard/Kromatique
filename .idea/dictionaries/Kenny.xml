@@ -5,6 +5,7 @@
       <w>lerp</w>
       <w>neumann</w>
       <w>sobel</w>
+      <w>subpaths</w>
     </words>
   </dictionary>
 </component>
