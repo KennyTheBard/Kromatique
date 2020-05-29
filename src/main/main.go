@@ -2,28 +2,25 @@ package main
 
 import (
 	. "./lib"
-	. "./lib/effect"
+	. "./lib/histogram"
 	. "./lib/utils"
 	"fmt"
+	"math"
 )
 
 func main() {
-	img := Load("../resources/test.jpg")
+	img := Load("../resources/test_eq.jpg")
 
 	ke := Parallel(100, 1000)
-	p := ke.Effect().ColorMapper([]MappingRule{Grayscale}).Apply(img)
+	h := NewHistogram(LightnessEvaluation, 0, math.MaxUint8)
+	h.Scan(img)
+	fmt.Println(len(h.Values()), h.Values())
 
-	//path := NewSegment(Pt2D(-100, -100), Pt2D(100, 100))
-	//line := NewLine(path, NewSprayRenderer(10, color.White))
-	//line.TransferTo(ke)
-	//line.
+	newImg := Equalize(h, UniformColorShift)
+	h.Scan(newImg)
+	fmt.Println(len(h.Values()), h.Values())
 
-	//lens := NewFishEyeLens(Pt2D(300, 300), 100, 30)
-	//d := NewDistortion(Extend, lens)
-	////d.TransferTo(ke)
-	//pd := d.Apply(img)
-
-	if err := Save(p.Result(), "../resources/result", "jpeg"); err != nil {
+	if err := Save(newImg, "../resources/result", "png"); err != nil {
 		fmt.Println(err.Error())
 	}
 

@@ -11,18 +11,18 @@ import (
 	"../utils"
 )
 
-// ColorMapperCondition filters colors based on contained logic
-type ColorMapperCondition func(color.Color) bool
-
 // MappingRule modifies a color using contained logic
 type MappingRule func(color.Color) color.Color
 
+// ColorMapperCondition filters colors based on contained logic
+type ColorMapperCondition func(color.Color) bool
+
 // Condition returns a copy of the MappingRule conditioned with
 // the given condition; this can be helpful in order to chain conditions
-func (m MappingRule) Condition(condition ColorMapperCondition) MappingRule {
+func ConditionRule(rule MappingRule, condition ColorMapperCondition) MappingRule {
 	return func(color color.Color) color.Color {
 		if condition(color) {
-			return m(color)
+			return rule(color)
 		}
 
 		return color
@@ -63,6 +63,19 @@ func Negative(in color.Color) color.Color {
 	newBlue := math.MaxUint16 - b
 
 	return color.RGBA64{R: uint16(newRed), G: uint16(newGreen), B: uint16(newBlue), A: uint16(a)}
+}
+
+// BlackAndWhite maps the given color to black or white depending on a color evaluation
+// function and its output to the color input relative to the given threshold
+func BlackAndWhite(threshold uint, evaluation utils.ColorEvaluation) MappingRule {
+	return func(in color.Color) color.Color {
+		val := evaluation(in)
+		if val >= threshold {
+			return color.White
+		}
+
+		return color.Black
+	}
 }
 
 // ColorMapper serves as a generic customizable structure that encapsulates
