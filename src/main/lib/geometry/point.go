@@ -1,4 +1,4 @@
-package utils
+package geometry
 
 import (
 	"image"
@@ -7,6 +7,21 @@ import (
 
 type Point2D struct {
 	X, Y float64
+}
+
+func (p *Point2D) Translate(x, y float64) {
+	p.X += x
+	p.Y += y
+}
+
+func (p *Point2D) Scale(x, y float64) {
+	p.X *= x
+	p.Y *= y
+}
+
+func (p *Point2D) Rotate(a float64) {
+	p.X = p.X*math.Cos(a) - p.Y*math.Sin(a)
+	p.Y = p.X*math.Sin(a) + p.Y*math.Cos(a)
 }
 
 func Pt2D(X, Y float64) Point2D {

@@ -7,6 +7,7 @@ import (
 	"math"
 
 	"../core"
+	"../geometry"
 	"../utils"
 )
 
@@ -79,12 +80,12 @@ func (lens PlanoLens) VecAt(x, y int) Vector {
 
 // FishEyeLens encapsulates logic for a fish eye distortion
 type FishEyeLens struct {
-	center   utils.Point2D
+	center   geometry.Point2D
 	radius   float64
 	strength float64
 }
 
-func NewFishEyeLens(center utils.Point2D, radius, strength float64) *FishEyeLens {
+func NewFishEyeLens(center geometry.Point2D, radius, strength float64) *FishEyeLens {
 	fel := new(FishEyeLens)
 	fel.center = center
 	fel.radius = radius
@@ -94,7 +95,7 @@ func NewFishEyeLens(center utils.Point2D, radius, strength float64) *FishEyeLens
 }
 
 func (lens FishEyeLens) VecAt(x, y int) Vector {
-	d := lens.center.Dist(utils.Pt2D(float64(x), float64(y)))
+	d := lens.center.Dist(geometry.Pt2D(float64(x), float64(y)))
 	if d > lens.radius || d == 0 {
 		return VecZero
 	} else {
