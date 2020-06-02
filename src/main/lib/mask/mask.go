@@ -6,22 +6,28 @@ import (
 	"image/color"
 )
 
+// Mask is an interface that checks if an image process
+// should alter a given pixel of an image
 type Mask interface {
 	Has(int, int) bool
 }
 
+// ShapeMask is an implementation of the Mask interface
+// that uses a geometric shape as image process mask
 type ShapeMask struct {
-	shape geometry.Shape
+	geometry.Shape
 }
 
 func (mask *ShapeMask) Has(x, y int) bool {
-	return mask.shape.Inside(geometry.Pt2D(float64(x), float64(y)))
+	return mask.Contains(geometry.Pt2D(float64(x), float64(y)))
 }
 
+// BitmapMask is an implementation of the Mask interface
+// that uses a grayscale image as image process mask
 type BitmapMask struct {
-	bitmap image.Gray
+	image.Gray
 }
 
 func (mask *BitmapMask) Has(x, y int) bool {
-	return mask.bitmap.At(x, y).(color.Gray).Y > 0
+	return mask.At(x, y).(color.Gray).Y > 0
 }
