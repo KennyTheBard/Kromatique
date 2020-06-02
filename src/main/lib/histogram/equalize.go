@@ -2,10 +2,9 @@ package histogram
 
 import (
 	"../utils"
-	"fmt"
 	"image"
 	"image/color"
-	"image/draw"
+	"math"
 )
 
 // ColorShift is a function that shifts the value of a color by
@@ -35,69 +34,21 @@ func DividedColorShift(c color.Color, val int) color.Color {
 	}
 }
 
-func Equalize(histogram *Histogram, shift ColorShift) image.Image {
+func Equalize(img image.Image, histogram *Histogram, shift ColorShift) image.Image {
 	values := histogram.Values()
 	cumulative := histogram.Cumulative()
-	start, end := histogram.ValuesInterval()
-	img := histogram.Original()
-	bounds := img.Bounds()
-	valueMap := make([][]int, bounds.Dy())
-	for i := 0; i < bounds.Dy(); i++ {
-		valueMap[i] = make([]int, bounds.Dx())
-	}
+	idealCumulative := make([]uint, len(values))
 
 	// calculate the length of the value space
-	space := uint(end - start)
+	space := uint(len(values))
 
 	// calculate slope of ideal cumulative
 	slope := float64(cumulative[len(cumulative)-1]) / float64(space)
 
 	// create a mapper for each interval
-	mappers := make(map[uint]uint)
-	prevEnd := start
-	curr := 0
-	var realCumulative uint
-	for idx, y := range values {
-		if y == 0 {
-			continue
-		}
-
-		idealCumulative := slope * float64(prevEnd)
-		realCumulative += y
-		var intervalLen, nextEnd int
-		if idx < len(values)-1 {
-			intervalLen = int((float64(realCumulative) - idealCumulative) / (slope))
-			if intervalLen < 1 {
-				intervalLen = 1
-			}
-			nextEnd = prevEnd + intervalLen
-		} else {
-			// last interval
-			nextEnd = end
-		}
-
-		mappers[uint(start+idx)] = uint(start + prevEnd)
-
-		prevEnd = nextEnd
-		curr += 1
+	for idx, _ := range values {
+		idealCumulative[idx] = uint(math.Round(slope * float64(idx)))
 	}
 
-	// create new image with equalized color
-	ret := utils.CreateRGBA(bounds)
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			pxColor := img.At(x, y)
-			val := histogram.Eval(pxColor)
-
-			if newVal, ok := mappers[val]; ok {
-				pxColor = shift(pxColor, int(newVal)-int(val))
-			}
-
-			ret.(draw.Image).Set(x, y, pxColor)
-		}
-	}
-
-	fmt.Println("mappers", mappers)
-
-	return ret
+	return Matching(img, histogram, idealCumulative, shift)
 }

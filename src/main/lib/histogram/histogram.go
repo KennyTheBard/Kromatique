@@ -10,27 +10,21 @@ import (
 type Histogram struct {
 	Eval utils.ColorEvaluation
 
-	values       []uint
-	scannedImage image.Image
-	start, end   int
+	values    []uint
+	numValues uint
 }
 
 func (h *Histogram) Scan(img image.Image) {
-	h.scannedImage = img
-	h.values = make([]uint, h.end-h.start+1)
+	h.values = make([]uint, h.numValues)
 
 	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
 		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-			idx := int(h.Eval(img.At(x, y)))
-			if idx >= h.start || idx <= h.end {
-				h.values[idx-h.start] += 1
+			idx := h.Eval(img.At(x, y))
+			if idx < h.numValues {
+				h.values[idx] += 1
 			}
 		}
 	}
-}
-
-func (h *Histogram) Original() image.Image {
-	return h.scannedImage
 }
 
 func (h *Histogram) Values() []uint {
@@ -49,16 +43,10 @@ func (h *Histogram) Cumulative() []uint {
 	return cumulative
 }
 
-func (h *Histogram) ValuesInterval() (int, int) {
-	return h.start, h.end
-}
-
-func NewHistogram(evaluate utils.ColorEvaluation, start, end int) *Histogram {
+func NewHistogram(evaluate utils.ColorEvaluation, numValues uint) *Histogram {
 	histogram := new(Histogram)
 	histogram.Eval = evaluate
-	histogram.scannedImage = nil
-	histogram.start = start
-	histogram.end = end
+	histogram.numValues = numValues
 
 	return histogram
 }
