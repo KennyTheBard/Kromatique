@@ -6,7 +6,6 @@ import (
 	"image/draw"
 
 	"../core"
-	"../geometry"
 	"../utils"
 )
 
@@ -49,4 +48,36 @@ func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
 
 		return core.NewPromise(ret, contract)
 	}
+}
+
+func (f Factory) Normal() Blender {
+	return f.Blend(Normal)
+}
+
+func (f Factory) Difference() Blender {
+	return f.Blend(Difference)
+}
+
+func (f Factory) Subtract() Blender {
+	return f.Blend(Subtract)
+}
+
+func (f Factory) Darken() Blender {
+	return f.Blend(Darken)
+}
+
+func (f Factory) Lighten() Blender {
+	return f.Blend(Lighten)
+}
+
+func (f Factory) LinearBurn() Blender {
+	return f.Blend(LinearBurn)
+}
+
+func (f Factory) Exclusion() Blender {
+	return f.Blend(Exclusion)
+}
+
+func (f Factory) Divide() Blender {
+	return f.Blend(Divide)
 }
