@@ -23,15 +23,15 @@ func (model *ModelMatrix2D) Multiply(other ModelMatrix2D) ModelMatrix2D {
 }
 
 func (model *ModelMatrix2D) Translate(x, y float64) {
-	*model = TranslateMatrix(x, y).Multiply(*model)
+	//*model = TranslateMatrix(x, y).Multiply(*model)
 }
 
 func (model *ModelMatrix2D) Scale(x, y float64) {
-	*model = ScaleMatrix(x, y).Multiply(*model)
+	//*model = ScaleMatrix(x, y).Multiply(*model)
 }
 
 func (model *ModelMatrix2D) Rotate(a float64) {
-	*model = RotateMatrix(a).Multiply(*model)
+	//*model = RotateMatrix(a).Multiply(*model)
 }
 
 func Eye2D() ModelMatrix2D {

@@ -24,3 +24,8 @@ func (object *Object2D) Rotate(a float64) {
 	object.model.Rotate(a)
 	object.inverse = object.inverse.Multiply(RotateMatrix(-a))
 }
+
+func InitObject(object *Object2D) {
+	object.model = Eye2D()
+	object.inverse = Eye2D()
+}

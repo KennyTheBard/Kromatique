@@ -1,7 +1,6 @@
 package geometry
 
 import (
-	"../utils"
 	"image"
 	"math"
 )
@@ -9,8 +8,8 @@ import (
 // Shape is an interface that encapsulates any kind of 2D shape
 type Shape interface {
 	IObject2D
-	// Inside returns if the shape contains the given point
-	Inside(Point2D) bool
+	// Contains returns if the shape contains the given 2D point
+	Contains(Point2D) bool
 	// MBR = Minimum Bounding Rectangle returns the smallest rectangle
 	// that contains the entire shape; should be used to minimize the
 	// Inside method calls
@@ -20,24 +19,14 @@ type Shape interface {
 // Circle encapsulates a simple circle shape defined by
 // a center and a radius
 type Circle struct {
+	Object2D
 	center Point2D
 	radius float64
 }
 
-func (shape *Circle) Translate(x, y float64) {
-	shape.center.Translate(x, y)
-}
-
-func (shape *Circle) Scale(x, y float64) {
-	shape.center.Scale(x, y)
-}
-
-func (shape *Circle) Rotate(a float64) {
-	shape.center.Rotate(a)
-}
-
-func (shape Circle) Inside(p Point2D) bool {
-	return shape.center.Dist(p) <= shape.radius
+func (shape Circle) Contains(p Point2D) bool {
+	ip := shape.inverse.Apply(p)
+	return shape.center.Dist(ip) <= shape.radius
 }
 
 func (shape Circle) MBR() image.Rectangle {
@@ -48,16 +37,59 @@ func (shape Circle) MBR() image.Rectangle {
 		int(math.Ceil(shape.center.Y+shape.radius)))
 }
 
+func NewCircle(center Point2D, radius float64) *Circle {
+	shape := new(Circle)
+	InitObject(&shape.Object2D)
+	shape.center = center
+	shape.radius = radius
+
+	return shape
+}
+
 // Rectangle encapsulates a simple rectangle defined by
 // an encapsulated image.Rectangle object
 type Rectangle struct {
-	rect image.Rectangle
+	Object2D
+	start, end Point2D
 }
 
-func (s Rectangle) Inside(p Point2D) bool {
-	return p.In(s.rect)
+func (shape Rectangle) Contains(p Point2D) bool {
+	ip := shape.inverse.Apply(p)
+	return ip.X >= shape.start.X && ip.Y >= shape.end.Y && ip.X <= shape.end.X && ip.Y <= shape.end.Y
 }
 
-func (s Rectangle) MBR() image.Rectangle {
-	return s.rect
+func (shape Rectangle) MBR() image.Rectangle {
+	points := []Point2D{
+		shape.start, shape.end, Pt2D(shape.end.X, shape.start.Y), Pt2D(shape.start.X, shape.end.Y),
+	}
+
+	minX, minY, maxX, maxY := points[0].X, points[0].Y, points[0].X, points[0].Y
+	for i := 1; i < len(points); i++ {
+		if points[i].X < minX {
+			minX = points[i].X
+		}
+
+		if points[i].Y < minY {
+			minY = points[i].Y
+		}
+
+		if points[i].X > maxX {
+			maxX = points[i].X
+		}
+
+		if points[i].Y > maxY {
+			maxY = points[i].Y
+		}
+	}
+
+	return image.Rect(int(math.Floor(minX)), int(math.Floor(minY)), int(math.Ceil(maxX)), int(math.Ceil(maxY)))
+}
+
+func NewRectangle(start, end Point2D) *Rectangle {
+	shape := new(Rectangle)
+	InitObject(&shape.Object2D)
+	shape.start = start
+	shape.end = end
+
+	return shape
 }
