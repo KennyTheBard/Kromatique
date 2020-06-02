@@ -35,6 +35,7 @@ func main() {
 	}
 
 	circle := NewCircle(Pt2D(100, 100), 35)
+	circle.Translate(-40, -40)
 	fmt.Println(circle.MBR())
 	renderedImage := ShapeRender(circle, MattePainter(color.RGBA{
 		R: math.MaxUint8 - 1,

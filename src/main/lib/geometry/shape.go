@@ -25,16 +25,18 @@ type Circle struct {
 }
 
 func (shape Circle) Contains(p Point2D) bool {
-	ip := shape.inverse.Apply(p)
+	ip := shape.Inverse().Apply(p)
 	return shape.center.Dist(ip) <= shape.radius
 }
 
 func (shape Circle) MBR() image.Rectangle {
+	min := shape.Model().Apply(Pt2D(shape.center.X-shape.radius, shape.center.Y-shape.radius))
+	max := shape.Model().Apply(Pt2D(shape.center.X+shape.radius, shape.center.Y+shape.radius))
 	return image.Rect(
-		int(math.Floor(shape.center.X-shape.radius)),
-		int(math.Floor(shape.center.Y-shape.radius)),
-		int(math.Ceil(shape.center.X+shape.radius)),
-		int(math.Ceil(shape.center.Y+shape.radius)))
+		int(math.Floor(min.X)),
+		int(math.Floor(min.Y)),
+		int(math.Ceil(max.X)),
+		int(math.Ceil(max.Y)))
 }
 
 func NewCircle(center Point2D, radius float64) *Circle {
@@ -54,7 +56,7 @@ type Rectangle struct {
 }
 
 func (shape Rectangle) Contains(p Point2D) bool {
-	ip := shape.inverse.Apply(p)
+	ip := shape.Inverse().Apply(p)
 	return ip.X >= shape.start.X && ip.Y >= shape.end.Y && ip.X <= shape.end.X && ip.Y <= shape.end.Y
 }
 
@@ -82,7 +84,14 @@ func (shape Rectangle) MBR() image.Rectangle {
 		}
 	}
 
-	return image.Rect(int(math.Floor(minX)), int(math.Floor(minY)), int(math.Ceil(maxX)), int(math.Ceil(maxY)))
+	min := shape.Model().Apply(Pt2D(minX, minY))
+	max := shape.Model().Apply(Pt2D(maxX, maxY))
+
+	return image.Rect(
+		int(math.Floor(min.X)),
+		int(math.Floor(min.Y)),
+		int(math.Ceil(max.X)),
+		int(math.Ceil(max.Y)))
 }
 
 func NewRectangle(start, end Point2D) *Rectangle {
