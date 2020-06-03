@@ -9,8 +9,8 @@ import (
 	"../utils"
 )
 
-// FlipStrategy returns the flipped position for a given position in the bounds of the image
-type FlipStrategy func(int, int, image.Rectangle) (int, int)
+// FlipperStrategy returns the flipped position for a given position in the bounds of the image
+type FlipperStrategy func(int, int, image.Rectangle) (int, int)
 
 // HorizontalFlip returns the given position flipped horizontally
 func HorizontalFlip(x, y int, bounds image.Rectangle) (int, int) {
@@ -26,7 +26,7 @@ func VerticalFlip(x, y int, bounds image.Rectangle) (int, int) {
 // the logic needed to apply a flipping strategy
 type Flip struct {
 	engine   core.Engine
-	strategy FlipStrategy
+	strategy FlipperStrategy
 }
 
 func (effect *Flip) Apply(img image.Image) *core.Promise {

@@ -8,6 +8,7 @@ import (
 
 	"../core"
 	"../geometry"
+	"../strategy"
 	"../utils"
 )
 
@@ -143,7 +144,7 @@ func (asm LensAssembly) VecAt(x, y int) Vector {
 // the logic needed to apply a distortion on a given image
 type Distortion struct {
 	engine       core.Engine
-	edgeHandling EdgeHandlingStrategy
+	edgeHandling strategy.EdgeHandling
 	lens         Lens
 }
 
@@ -156,11 +157,9 @@ func (effect *Distortion) Apply(img image.Image) *core.Promise {
 		if err := contract.PlaceOrder(func() {
 			for x := ret.Bounds().Min.X; x < ret.Bounds().Max.X; x++ {
 				v := effect.lens.VecAt(x, y)
-				newX := int(math.Round(float64(x) + v.X))
-				newY := int(math.Round(float64(y) + v.Y))
-				col := effect.edgeHandling(&img, newX, newY)
+				newX, newY := effect.edgeHandling(img.Bounds(), int(math.Round(float64(x)+v.X)), int(math.Round(float64(y)+v.Y)))
 
-				ret.(draw.Image).Set(x, y, col)
+				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
 		}); err != nil {
 			fmt.Print(err)

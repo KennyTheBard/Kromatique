@@ -1,14 +1,15 @@
 package histogram
 
 import (
-	"../utils"
 	"image"
+
+	"../strategy"
 )
 
 // Histogram encapsulates the data extracted from an image bundled with the logic
 // used to extract it in order to apply meaningful transformations to it
 type Histogram struct {
-	Eval utils.ColorEvaluation
+	Eval strategy.Evaluation
 
 	values    []uint
 	numValues uint
@@ -43,7 +44,7 @@ func (h *Histogram) Cumulative() []uint {
 	return cumulative
 }
 
-func NewHistogram(evaluate utils.ColorEvaluation, numValues uint) *Histogram {
+func NewHistogram(evaluate strategy.Evaluation, numValues uint) *Histogram {
 	histogram := new(Histogram)
 	histogram.Eval = evaluate
 	histogram.numValues = numValues

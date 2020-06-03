@@ -2,6 +2,7 @@ package effect
 
 import (
 	"../core"
+	"../strategy"
 	"../utils"
 )
 
@@ -16,7 +17,7 @@ func NewFactory(engine core.Engine) *Factory {
 	return f
 }
 
-func (f Factory) Flip(strategy FlipStrategy) *Flip {
+func (f Factory) Flip(strategy FlipperStrategy) *Flip {
 	effect := new(Flip)
 	effect.engine = f.engine
 	effect.strategy = strategy
@@ -24,7 +25,7 @@ func (f Factory) Flip(strategy FlipStrategy) *Flip {
 	return effect
 }
 
-func (f Factory) SingleKernelFilter(edgeHandling EdgeHandlingStrategy, kernel utils.Matrix) *SingleKernel {
+func (f Factory) SingleKernelFilter(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) *SingleKernel {
 	effect := new(SingleKernel)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
@@ -33,7 +34,7 @@ func (f Factory) SingleKernelFilter(edgeHandling EdgeHandlingStrategy, kernel ut
 	return effect
 }
 
-func (f Factory) MultiKernelFilter(edgeHandling EdgeHandlingStrategy, resultMerging ResultMergingStrategy, kernels []utils.Matrix) *MultiKernel {
+func (f Factory) MultiKernelFilter(edgeHandling strategy.EdgeHandling, resultMerging strategy.ResultMerger, kernels []utils.Kernel) *MultiKernel {
 	effect := new(MultiKernel)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
@@ -43,7 +44,7 @@ func (f Factory) MultiKernelFilter(edgeHandling EdgeHandlingStrategy, resultMerg
 	return effect
 }
 
-func (f Factory) Distortion(edgeHandling EdgeHandlingStrategy, lens Lens) *Distortion {
+func (f Factory) Distortion(edgeHandling strategy.EdgeHandling, lens Lens) *Distortion {
 	effect := new(Distortion)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
@@ -52,7 +53,7 @@ func (f Factory) Distortion(edgeHandling EdgeHandlingStrategy, lens Lens) *Disto
 	return effect
 }
 
-func (f Factory) Difference(diff DifferenceStrategy) *Difference {
+func (f Factory) Difference(diff strategy.Difference) *Difference {
 	effect := new(Difference)
 	effect.engine = f.engine
 	effect.diff = diff
@@ -60,7 +61,7 @@ func (f Factory) Difference(diff DifferenceStrategy) *Difference {
 	return effect
 }
 
-func (f Factory) ColorMapper(rules []MappingRule) *ColorMapper {
+func (f Factory) ColorMapper(rules []strategy.MappingRule) *ColorMapper {
 	effect := new(ColorMapper)
 	effect.engine = f.engine
 	effect.rules = rules
@@ -68,7 +69,7 @@ func (f Factory) ColorMapper(rules []MappingRule) *ColorMapper {
 	return effect
 }
 
-func (f Factory) Scale(scaleFactorStrategy ScaleFactorStrategy, colorSamplingStrategy ColorSamplingStrategy) *Scale {
+func (f Factory) Scale(scaleFactorStrategy strategy.ScalingTarget, colorSamplingStrategy ColorSamplingStrategy) *Scale {
 	effect := new(Scale)
 	effect.engine = f.engine
 	effect.scaleFactorStrategy = scaleFactorStrategy
