@@ -2,48 +2,35 @@ package main
 
 import (
 	. "./lib"
-	. "./lib/geometry"
-	. "./lib/histogram"
-	. "./lib/render"
+	. "./lib/crop"
+	. "./lib/position"
 	. "./lib/utils"
 	"fmt"
-	"image"
-	"image/color"
-	"math"
 )
 
 func main() {
-	img := Load("../resources/test_eq.jpg")
+	img, err := Load("../resources/test.jpg")
+	if err != nil {
+		panic(err)
+	}
 
 	ke := Parallel(100, 1000)
-	h := NewHistogram(LightnessEvaluation, math.MaxUint8+1)
-	h.Scan(img)
 
-	newImg := Equalize(img, h, UniformColorShift)
-	h.Scan(newImg)
+	//circle := NewCircle(Pt2D(100, 100), 35)
+	//circle.Translate(-40, -40).Scale(1.2, 0.5)
+	//fmt.Println(circle.MBR())
+	//renderedImage := ShapeRender(circle, MattePainter(color.RGBA{
+	//	R: math.MaxUint8 - 1,
+	//	G: 0,
+	//	B: 0,
+	//	A: math.MaxUint8 - 1,
+	//}))
 
-	if err := Save(newImg, "../resources/result", "png"); err != nil {
-		fmt.Println(err.Error())
-	}
+	res := Copy(img, Pos(Fixed(200), Fixed(200)), Pos(Fixed(300), Fixed(200).Anchor(End)))
 
-	bg := Load("../resources/bg.jpg")
-	fg := Load("../resources/rgb.jpg")
+	fmt.Println(res.Bounds())
 
-	p := ke.Blend().Divide()(bg, fg, image.Pt(0, 0))
-	if err := Save(p.Result(), "../resources/blend", "png"); err != nil {
-		fmt.Println(err.Error())
-	}
-
-	circle := NewCircle(Pt2D(100, 100), 35)
-	circle.Translate(-40, -40)
-	fmt.Println(circle.MBR())
-	renderedImage := ShapeRender(circle, MattePainter(color.RGBA{
-		R: math.MaxUint8 - 1,
-		G: 0,
-		B: 0,
-		A: math.MaxUint8 - 1,
-	}))
-	if err := Save(renderedImage, "../resources/render", "png"); err != nil {
+	if err := Save(res, "../resources/result", "png"); err != nil {
 		fmt.Println(err.Error())
 	}
 

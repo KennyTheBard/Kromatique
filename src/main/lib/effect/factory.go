@@ -3,7 +3,6 @@ package effect
 import (
 	"../core"
 	"../utils"
-	"image"
 )
 
 type Factory struct {
@@ -65,25 +64,6 @@ func (f Factory) ColorMapper(rules []MappingRule) *ColorMapper {
 	effect := new(ColorMapper)
 	effect.engine = f.engine
 	effect.rules = rules
-
-	return effect
-}
-
-func (f Factory) Normalization(source, target *utils.ColorInterval) *Normalization {
-	effect := new(Normalization)
-	effect.engine = f.engine
-	effect.sourceInterval = source
-	effect.targetInterval = target
-
-	return effect
-}
-
-func (f Factory) Overlay(stamp image.Image, origin image.Point, opacity float64) *Overlay {
-	effect := new(Overlay)
-	effect.engine = f.engine
-	effect.stamp = stamp
-	effect.origin = origin
-	effect.opacity = opacity
 
 	return effect
 }

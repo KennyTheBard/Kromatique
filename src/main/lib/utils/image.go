@@ -12,18 +12,18 @@ import (
 )
 
 // Load returns an image object of the file located at given path
-func Load(path string) image.Image {
+func Load(path string) (image.Image, error) {
 	file, errOpen := os.Open(path)
 	if errOpen != nil {
-		return nil
+		return nil, errOpen
 	}
 	defer file.Close()
 
 	img, _, errDecode := image.Decode(file)
 	if errDecode != nil {
-		return nil
+		return nil, errDecode
 	}
-	return img
+	return img, nil
 }
 
 // Save write the given image in a file of chosen format at the given path
@@ -46,14 +46,14 @@ func Save(img image.Image, path, format string) error {
 }
 
 // CreateRGBA returns an image with the given size
-func CreateRGBA(dimension image.Rectangle) image.Image {
-	img := image.NewRGBA(dimension)
+func CreateRGBA(bounds image.Rectangle) image.Image {
+	img := image.NewRGBA(bounds)
 	return img
 }
 
 // CreateBackground returns an image with the given size and a monochrome background of the given color
-func CreateBackground(dimension image.Rectangle, col color.Color) image.Image {
-	img := image.NewRGBA(dimension)
-	draw.Draw(img, img.Bounds(), &image.Uniform{C: col}, dimension.Min, draw.Src)
+func CreateBackground(bounds image.Rectangle, col color.Color) image.Image {
+	img := image.NewRGBA(bounds)
+	draw.Draw(img, img.Bounds(), &image.Uniform{C: col}, bounds.Min, draw.Src)
 	return img
 }
