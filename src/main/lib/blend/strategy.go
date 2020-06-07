@@ -17,8 +17,6 @@ func Normal(bg, fg color.Color) color.Color {
 		return color.Transparent
 	}
 
-	//factor := float64(a2) / float64(a1+a2)
-
 	return color.RGBA64{
 		R: uint16(utils.LERP(float64(r1), float64(r2), float64(a2)/float64(color.Opaque.A))),
 		G: uint16(utils.LERP(float64(g1), float64(g2), float64(a2)/float64(color.Opaque.A))),

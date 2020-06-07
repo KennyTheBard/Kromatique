@@ -9,7 +9,7 @@ import (
 	"../utils"
 )
 
-type Blender func(image.Image, image.Image, image.Point) *core.Promise
+type Blender func(image.Image, image.Image, image.Point, Mask) *core.Promise
 
 type Factory struct {
 	engine core.Engine
@@ -23,7 +23,7 @@ func NewFactory(engine core.Engine) *Factory {
 }
 
 func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
-	return func(bg, fg image.Image, fgOrigin image.Point) *core.Promise {
+	return func(bg, fg image.Image, fgOrigin image.Point, fgMask Mask) *core.Promise {
 		ret := utils.CreateRGBA(bg.Bounds())
 		contract := f.engine.Contract(bg.Bounds().Dy())
 
@@ -35,7 +35,7 @@ func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
 
 					pxColor := cbg
 					if image.Pt(x, y).In(fg.Bounds()) {
-						pxColor = blendingStrategy(cbg, cfg)
+						pxColor = utils.PixelLERP(cbg, blendingStrategy(cbg, cfg), fgMask(x+fgOrigin.X, y+fgOrigin.Y))
 					}
 
 					ret.(draw.Image).Set(x, y, pxColor)
