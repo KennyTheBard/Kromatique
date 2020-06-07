@@ -2,10 +2,12 @@ package main
 
 import (
 	. "./lib/geometry"
+	. "./lib/imageio"
 	. "./lib/render"
 	. "./lib/utils"
 	"fmt"
 	"image/color"
+	"math"
 )
 
 func collide(p1, p2, rayTip Point2D) bool {
@@ -23,36 +25,32 @@ func main() {
 
 	//ke := Parallel(100, 1000)
 
-	//circle := NewPolygon([]Point2D{
-	//	Pt2D(10, 10),
-	//	Pt2D(145, 80),
-	//	Pt2D(125, 125),
-	//	Pt2D(300, 15),
-	//	Pt2D(120, 280),
-	//	Pt2D(80, 80),
-	//	Pt2D(50, 120),
-	//	Pt2D(5, 100),
-	//})
-	//renderedImage := ShapeRender(circle, MattePainter(color.RGBA{
-	//	R: math.MaxUint8 - 1,
-	//	G: 0,
-	//	B: 0,
-	//	A: math.MaxUint8 - 1,
-	//}))
-
-	p := NewBezier4(
+	circle := NewPolygon([]Point2D{
 		Pt2D(0, 0),
-		Pt2D(0, 15),
-		Pt2D(0, 45),
-		Pt2D(60, 60),
-	)
-	p.Translate(10, 10)
-	renderedImage := PathRender(p, MattePainter(color.RGBA{
-		R: 255,
+		Pt2D(100, 0),
+		Pt2D(0, 101),
+		Pt2D(100, 101),
+	})
+	renderedImage := ShapeRender(circle, MattePainter(color.RGBA{
+		R: math.MaxUint8 - 1,
 		G: 0,
 		B: 0,
-		A: 255,
-	}), 10)
+		A: math.MaxUint8 - 1,
+	}))
+
+	//p := NewBezier4(
+	//	Pt2D(0, 0),
+	//	Pt2D(0, 15),
+	//	Pt2D(0, 45),
+	//	Pt2D(60, 60),
+	//)
+	//p.Translate(10, 10)
+	//renderedImage := PathRender(p, MattePainter(color.RGBA{
+	//	R: 255,
+	//	G: 0,
+	//	B: 0,
+	//	A: 255,
+	//}), 10)
 
 	if err := Save(renderedImage, "../resources/render", "png"); err != nil {
 		fmt.Println(err.Error())
