@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// Contract is a middle man object makes interface between the user
-// and the execution engine, taking care of schedule in the process
+// Contract is a middle man interface between the user and the execution engine,
+// being responsible for scheduling in the process
 type Contract interface {
 	// PlaceOrder adds the given tasks in the executing schedule
 	PlaceOrder(t Task) error
@@ -15,7 +15,7 @@ type Contract interface {
 	Deadline()
 }
 
-// PoolContract is an implementation of Contract that manages
+// PoolContract is an implementation of Contract interface that manages
 // tasks that can be executed concurrently
 type PoolContract struct {
 	limit   int
@@ -47,7 +47,7 @@ func NewPoolContract(orderSize int, q OrderQueue) *PoolContract {
 	return contract
 }
 
-// SequentialContract is an implementation of Contract that
+// SequentialContract is an implementation of Contract interface that
 // manages sequential execution of given task in the same goroutine
 type SequentialContract struct {
 	limit   int

@@ -1,5 +1,7 @@
 package core
 
+import "sync"
+
 // Engine is an abstraction over the execution and schedule of tasks,
 // encapsulating the logic and displaying a simple interface to its users
 type Engine interface {
@@ -14,6 +16,7 @@ type Engine interface {
 type PoolEngine struct {
 	workForce  int
 	orderQueue OrderQueue
+	wg         sync.WaitGroup
 }
 
 func (engine PoolEngine) Contract(orderSize int) Contract {
@@ -22,12 +25,14 @@ func (engine PoolEngine) Contract(orderSize int) Contract {
 
 func (engine PoolEngine) Stop() {
 	close(engine.orderQueue)
+	engine.wg.Wait()
 }
 
 func NewPoolEngine(workForce, queueSize int) *PoolEngine {
 	ke := new(PoolEngine)
 	ke.workForce = workForce
 	ke.orderQueue = make(OrderQueue, queueSize)
+	ke.wg.Add(workForce)
 
 	for i := 0; i < workForce; i++ {
 		go func() {
@@ -40,6 +45,7 @@ func NewPoolEngine(workForce, queueSize int) *PoolEngine {
 					break
 				}
 			}
+			ke.wg.Done()
 		}()
 	}
 
