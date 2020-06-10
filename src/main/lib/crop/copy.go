@@ -8,6 +8,8 @@ import (
 	"../utils"
 )
 
+// Copy returns a cropped image obtained by drawing a segment of the old image
+// into a new one, between the given coordinates points
 func Copy(img image.Image, start, end position.Position) image.Image {
 	boundsStart := start.Find(img.Bounds())
 	boundsEnd := end.Find(img.Bounds())

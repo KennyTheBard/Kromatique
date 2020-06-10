@@ -7,6 +7,8 @@ import (
 	"../position"
 )
 
+// ImageSlice is an Image interface implementation that encapsulate
+// a cropped image that shares memory with the original image
 type ImageSlice struct {
 	origin    image.Image
 	cutBounds image.Rectangle
@@ -28,6 +30,8 @@ func (slice *ImageSlice) At(x, y int) color.Color {
 	return color.RGBA{}
 }
 
+// Cut returns a cropped image that shares memory with the original one
+// between the given coordinates points
 func Cut(img image.Image, start, end position.Position) image.Image {
 	slice := new(ImageSlice)
 	slice.origin = img
