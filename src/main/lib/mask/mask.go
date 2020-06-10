@@ -1,4 +1,4 @@
-package blend
+package mask
 
 import (
 	"../geometry"

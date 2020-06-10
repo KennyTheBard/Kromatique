@@ -1,6 +1,7 @@
 package blend
 
 import (
+	"../mask"
 	"fmt"
 	"image"
 	"image/draw"
@@ -9,7 +10,9 @@ import (
 	"../utils"
 )
 
-type Blender func(image.Image, image.Image, image.Point, Mask) *core.Promise
+// Blender is a function that receives 2 images, a background and a foreground one
+// a position for the origin of the second and a mask to interpolate with
+type Blender func(image.Image, image.Image, image.Point, mask.Mask) *core.Promise
 
 type Factory struct {
 	engine core.Engine
@@ -22,8 +25,9 @@ func NewFactory(engine core.Engine) *Factory {
 	return f
 }
 
+// Blend returns a Blender function using the given BlendingStrategy
 func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
-	return func(bg, fg image.Image, fgOrigin image.Point, fgMask Mask) *core.Promise {
+	return func(bg, fg image.Image, fgOrigin image.Point, fgMask mask.Mask) *core.Promise {
 		ret := utils.CreateRGBA(bg.Bounds())
 		contract := f.engine.Contract(bg.Bounds().Dy())
 
@@ -52,10 +56,6 @@ func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
 
 func (f Factory) Normal() Blender {
 	return f.Blend(Normal)
-}
-
-func (f Factory) Difference() Blender {
-	return f.Blend(Difference)
 }
 
 func (f Factory) Subtract() Blender {
