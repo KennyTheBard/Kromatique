@@ -17,10 +17,18 @@ func NewFactory(engine core.Engine) *Factory {
 	return f
 }
 
-func (f Factory) Flip(strategy FlipperStrategy) *Flip {
+func (f Factory) HFlip() *Flip {
 	effect := new(Flip)
 	effect.engine = f.engine
-	effect.strategy = strategy
+	effect.strategy = HorizontalFlip
+
+	return effect
+}
+
+func (f Factory) VFlip() *Flip {
+	effect := new(Flip)
+	effect.engine = f.engine
+	effect.strategy = VerticalFlip
 
 	return effect
 }
@@ -34,7 +42,7 @@ func (f Factory) SingleKernelFilter(edgeHandling strategy.EdgeHandling, kernel u
 	return effect
 }
 
-func (f Factory) MultiKernelFilter(edgeHandling strategy.EdgeHandling, resultMerging strategy.ResultMerger, kernels []utils.Kernel) *MultiKernel {
+func (f Factory) MultiKernelFilter(edgeHandling strategy.EdgeHandling, resultMerging strategy.ResultMerger, kernels ...utils.Kernel) *MultiKernel {
 	effect := new(MultiKernel)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
@@ -74,6 +82,14 @@ func (f Factory) Scale(scaleFactorStrategy strategy.ScalingTarget, colorSampling
 	effect.engine = f.engine
 	effect.scaleFactorStrategy = scaleFactorStrategy
 	effect.colorSamplingStrategy = colorSamplingStrategy
+
+	return effect
+}
+
+func (f Factory) Jitter(radius int) *Jitter {
+	effect := new(Jitter)
+	effect.engine = f.engine
+	effect.radius = radius
 
 	return effect
 }
