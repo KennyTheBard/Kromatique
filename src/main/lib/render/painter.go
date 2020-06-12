@@ -1,11 +1,15 @@
 package render
 
-import "image/color"
+import (
+	"image/color"
 
-type Painter func(int, int) color.Color
+	"../utils"
+)
+
+type Painter func(float64, int, int) color.Color
 
 func MattePainter(c color.Color) Painter {
-	return func(_, _ int) color.Color {
-		return c
+	return func(t float64, _, _ int) color.Color {
+		return utils.PixelLERP(color.Transparent, c, t)
 	}
 }

@@ -1,7 +1,6 @@
 package mask
 
 import (
-	"../geometry"
 	"image"
 	"math"
 )
@@ -14,16 +13,16 @@ func TrueMask(int, int) float64 {
 	return 1
 }
 
-// ShapeMask returns a mask based on the given shape
-func ShapeMask(shape geometry.Shape) Mask {
-	return func(x, y int) float64 {
-		if shape.Contains(geometry.Pt2D(float64(x), float64(y))) {
-			return 1
-		} else {
-			return 0
-		}
-	}
-}
+//// ShapeMask returns a mask based on the given shape
+//func ShapeMask(shape geometry.Shape) Mask {
+//	return func(x, y int) float64 {
+//		if shape.Contains(geometry.Pt2D(float64(x), float64(y))) {
+//			return 1
+//		} else {
+//			return 0
+//		}
+//	}
+//}
 
 // BitmapMask returns a mask based on a bitmap of values
 func BitmapMask(bitmap [][]float64) Mask {

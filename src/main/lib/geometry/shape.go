@@ -8,8 +8,8 @@ import (
 // Shape is an interface that encapsulates any kind of 2D shape
 type Shape interface {
 	IObject2D
-	// Contains returns if the shape contains the given 2D point
-	Contains(Point2D) bool
+	// Definition returns the data needed to define the shape
+	Definition() []interface{}
 	// MBR = Minimum Bounding Rectangle returns the smallest rectangle
 	// that contains the entire shape; should be used to minimize the
 	// Inside method calls
@@ -24,9 +24,8 @@ type Circle struct {
 	radius float64
 }
 
-func (shape *Circle) Contains(p Point2D) bool {
-	ip := shape.Inverse().Apply(p)
-	return shape.center.Dist(ip) <= shape.radius
+func (shape *Circle) Definition() []interface{} {
+	return []interface{}{shape.center, shape.radius}
 }
 
 func (shape *Circle) MBR() image.Rectangle {
@@ -44,46 +43,6 @@ func NewCircle(center Point2D, radius float64) *Circle {
 	InitObject(&shape.Object2D)
 	shape.center = center
 	shape.radius = radius
-
-	return shape
-}
-
-// Rectangle encapsulates a simple rectangle defined by
-// an encapsulated image.Rectangle object
-type Rectangle struct {
-	Object2D
-	start, end Point2D
-}
-
-func (shape *Rectangle) Contains(p Point2D) bool {
-	ip := shape.Inverse().Apply(p)
-	return ip.X >= shape.start.X && ip.Y >= shape.end.Y && ip.X <= shape.end.X && ip.Y <= shape.end.Y
-}
-
-func (shape *Rectangle) MBR() image.Rectangle {
-	start := shape.Model().Apply(Pt2D(shape.start.X, shape.start.Y))
-	end := shape.Model().Apply(Pt2D(shape.end.X, shape.end.Y))
-
-	return image.Rect(
-		int(math.Floor(start.X)),
-		int(math.Floor(start.Y)),
-		int(math.Ceil(end.X)),
-		int(math.Ceil(end.Y))).Canon()
-}
-
-func NewRectangle(start, end Point2D) *Rectangle {
-	shape := new(Rectangle)
-	InitObject(&shape.Object2D)
-	shape.start = Pt2D(0, 0)
-	shape.end = Pt2D(0, 0)
-	if end.X < start.X {
-		shape.start.Translate(end.X, 0)
-		shape.end.Translate(start.X, 0)
-	}
-	if end.Y < start.Y {
-		shape.start.Translate(0, end.Y)
-		shape.end.Translate(0, start.Y)
-	}
 
 	return shape
 }
@@ -107,7 +66,7 @@ func (shape *Polygon) Contains(p Point2D) bool {
 		return false
 	}
 
-	p = shape.Inverse().Apply(p)
+	p = shape.inverse.Apply(p)
 
 	// count collisions of the ray with polygon edges
 	rayCollisionPoints := make(map[int]Point2D, 0)
@@ -176,14 +135,23 @@ func (shape *Polygon) Contains(p Point2D) bool {
 	return rayCollisionCount%2 == 1
 }
 
+func (shape *Polygon) Definition() []interface{} {
+	ret := make([]Point2D, len(shape.points))
+	model := shape.Model()
+	for idx, p := range shape.points {
+		ret[idx] = model.Apply(p)
+	}
+	return []interface{}{ret}
+}
+
 func (shape *Polygon) MBR() image.Rectangle {
 	if len(shape.points) <= 2 {
 		return image.Rectangle{}
 	}
 
-	minX, minY, maxX, maxY := shape.points[0].X, shape.points[0].Y, shape.points[0].X, shape.points[0].Y
-	for i := 1; i < len(shape.points); i++ {
-		p := shape.points[i]
+	var minX, minY, maxX, maxY float64
+	for i := 0; i < len(shape.points); i++ {
+		p := shape.Model().Apply(shape.points[i])
 
 		if p.X < minX {
 			minX = p.X
@@ -202,9 +170,8 @@ func (shape *Polygon) MBR() image.Rectangle {
 		}
 	}
 
-	min := shape.Model().Apply(Pt2D(minX, minY))
-	max := shape.Model().Apply(Pt2D(maxX, maxY))
-
+	min := Pt2D(minX, minY)
+	max := Pt2D(maxX, maxY)
 	return image.Rect(
 		int(math.Floor(min.X)),
 		int(math.Floor(min.Y)),

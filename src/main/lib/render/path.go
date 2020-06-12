@@ -38,7 +38,8 @@ func PathRender(path geometry.Path, paint Painter, width float64) image.Image {
 
 	for _, p := range points {
 		x, y := int(math.Round(p.X)), int(math.Round(p.Y))
-		ret.(draw.Image).Set(x, y, paint(x, y))
+		//x, y := int(math.Floor(p.X)), int(math.Floor(p.Y))
+		ret.(draw.Image).Set(x, y, paint(1, x, y))
 	}
 
 	//for y := mbr.Min.Y; y < mbr.Max.Y; y++ {
