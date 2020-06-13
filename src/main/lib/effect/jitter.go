@@ -11,8 +11,8 @@ import (
 	"../utils"
 )
 
-// Flip serves as a generic customizable structure that encapsulates
-// the logic needed to apply a flipping strategy
+// Jitter serves as a generic customizable structure that encapsulates
+// the logic needed to apply a jitter effect on an image
 type Jitter struct {
 	engine core.Engine
 	radius int
