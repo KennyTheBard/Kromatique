@@ -93,3 +93,13 @@ func (f Factory) Jitter(radius int) *Jitter {
 
 	return effect
 }
+
+func (f Factory) Median(edgeHandling strategy.EdgeHandling, eval strategy.Evaluation, windowRadius int) *Median {
+	effect := new(Median)
+	effect.engine = f.engine
+	effect.edgeHandling = edgeHandling
+	effect.eval = eval
+	effect.windowRadius = windowRadius
+
+	return effect
+}

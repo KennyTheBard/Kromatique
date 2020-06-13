@@ -28,9 +28,7 @@ func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 		y := i
 		if err := contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				var newRed float64
-				var newGreen float64
-				var newBlue float64
+				var newRed, newGreen, newBlue float64
 				for yy := -radius; yy <= radius; yy++ {
 					for xx := -radius; xx <= radius; xx++ {
 						newX, newY := effect.edgeHandling(img.Bounds(), x+xx, y+yy)
