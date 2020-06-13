@@ -54,13 +54,6 @@ func CircleRender(shape *geometry.Circle, paint Painter) image.Image {
 	return ret
 }
 
-func collide(p1, p2 geometry.Point2D, y float64) geometry.Point2D {
-	A, B := p2.Y-p1.Y, p1.X-p2.X
-	C := (p2.X * p1.Y) - (p1.X * p2.Y)
-	x := -(B*y + C) / A
-	return geometry.Pt2D(x, y)
-}
-
 func PolygonRender(shape *geometry.Polygon, paint Painter) image.Image {
 	mbr := shape.MBR()
 	ret := utils.CreateRGBA(mbr)
