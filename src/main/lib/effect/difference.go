@@ -10,11 +10,11 @@ import (
 	"../utils"
 )
 
-// Difference serves as a generic customizable structure that encapsulates
+// ColorDifference serves as a generic customizable structure that encapsulates
 // the logic needed to apply a given difference strategy
 type Difference struct {
 	engine core.Engine
-	diff   strategy.Difference
+	diff   strategy.ColorDifference
 }
 
 func (effect *Difference) Apply(imgA, imgB image.Image) *core.Promise {

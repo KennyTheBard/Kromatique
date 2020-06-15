@@ -7,14 +7,14 @@ import (
 	"../utils"
 )
 
-// Difference takes 2 colors and return a difference between them based
+// ColorDifference takes 2 colors and return a difference between them based
 // on the logic it contains
-type Difference func(color.Color, color.Color) color.Color
+type ColorDifference func(color.Color, color.Color) color.Color
 
-// BinaryDifference returns a Difference that for 2 colors that are more
+// BinaryDifference returns a ColorDifference that for 2 colors that are more
 // different (in matter of color channels) than a threshold, returns a predefined
 // color, otherwise returns other predefined color, reducing the image to only 2 colors
-func BinaryDifference(delta float64, same, difference color.Color) Difference {
+func BinaryDifference(delta float64, same, difference color.Color) ColorDifference {
 	border := int(math.Round(delta * math.MaxUint16))
 	return func(c1, c2 color.Color) color.Color {
 		r1, g1, b1, a1 := c1.RGBA()
@@ -30,7 +30,7 @@ func BinaryDifference(delta float64, same, difference color.Color) Difference {
 	}
 }
 
-// ChannelDifference returns a Difference that returns the absolute value of
+// ChannelDifference returns a ColorDifference that returns the absolute value of
 // the effective difference of 2 colors, channel by channel; for example, the difference
 // for red and blue will be magenta, as both channels will be returned at maximum value
 func ChannelDifference(c1, c2 color.Color) color.Color {

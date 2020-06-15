@@ -61,7 +61,7 @@ func (f Factory) Distortion(edgeHandling strategy.EdgeHandling, lens Lens) *Dist
 	return effect
 }
 
-func (f Factory) Difference(diff strategy.Difference) *Difference {
+func (f Factory) Difference(diff strategy.ColorDifference) *Difference {
 	effect := new(Difference)
 	effect.engine = f.engine
 	effect.diff = diff
@@ -94,7 +94,7 @@ func (f Factory) Jitter(radius int) *Jitter {
 	return effect
 }
 
-func (f Factory) Median(edgeHandling strategy.EdgeHandling, eval strategy.Evaluation, windowRadius int) *Median {
+func (f Factory) Median(edgeHandling strategy.EdgeHandling, eval strategy.ColorEvaluation, windowRadius int) *Median {
 	effect := new(Median)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling

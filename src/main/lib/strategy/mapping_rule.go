@@ -73,7 +73,7 @@ func Negative(in color.Color) color.Color {
 
 // BlackAndWhite maps the given color to black or white depending on a color evaluation
 // function and its output to the color input relative to the given threshold
-func BlackAndWhite(threshold uint, evaluation Evaluation) MappingRule {
+func BlackAndWhite(evaluation ColorEvaluation, threshold float64) MappingRule {
 	return func(in color.Color) color.Color {
 		val := evaluation(in)
 		if val >= threshold {
@@ -82,4 +82,18 @@ func BlackAndWhite(threshold uint, evaluation Evaluation) MappingRule {
 
 		return color.Black
 	}
+}
+
+// CorrectionMapping maps the given color to a color obtained by applying
+// the correction strategy with a given factor on each color pixel
+func CorrectionMapping(correction ColorCorrection, factor float64) MappingRule {
+	return func(in color.Color) color.Color {
+		return correction(in, factor)
+	}
+}
+
+// BrightnessMapping maps the given color to a brighter or darker color
+// depending on the given brightness factor
+func BrightnessMapping(brightnessFactor float64) MappingRule {
+	return CorrectionMapping(LightnessCorrection, brightnessFactor)
 }

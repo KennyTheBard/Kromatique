@@ -16,7 +16,7 @@ import (
 // the logic needed to apply a a median effect on an image
 type Median struct {
 	engine       core.Engine
-	eval         strategy.Evaluation
+	eval         strategy.ColorEvaluation
 	edgeHandling strategy.EdgeHandling
 	windowRadius int
 }
@@ -40,7 +40,8 @@ func (effect *Median) Apply(img image.Image) *core.Promise {
 				}
 
 				sort.Slice(windowValues[:], func(i, j int) bool {
-					return effect.eval(windowValues[i]) < effect.eval(windowValues[j])
+					return effect.
+						eval(windowValues[i]) < effect.eval(windowValues[j])
 				})
 
 				ret.(draw.Image).Set(x, y, windowValues[(2*radius+1)*(2*radius+1)/2])
