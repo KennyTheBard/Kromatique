@@ -35,29 +35,6 @@ func NewSegment(p0, p1 Point2D) *Segment {
 	return path
 }
 
-// Bezier2 implements a linear Bezier curve
-type Bezier2 struct {
-	Object2D
-	p0, p1 Point2D
-}
-
-func (path *Bezier2) GetPoint(t float64) Point2D {
-	p0, p1 := path.Model().Apply(path.p0), path.Model().Apply(path.p1)
-
-	return Pt2D(
-		(1-t)*p0.X+t*p1.X,
-		(1-t)*p0.Y+t*p1.Y)
-}
-
-func NewBezier2(p0, p1 Point2D) *Bezier2 {
-	path := new(Bezier2)
-	InitObject(&path.Object2D)
-	path.p0 = p0
-	path.p1 = p1
-
-	return path
-}
-
 // Bezier3 implements a quadratic Bezier curve
 type Bezier3 struct {
 	Object2D

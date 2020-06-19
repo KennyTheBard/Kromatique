@@ -1,7 +1,6 @@
 package geometry
 
 import (
-	"image"
 	"math"
 )
 
@@ -30,11 +29,6 @@ func (p Point2D) Dist(q Point2D) float64 {
 
 func (p Point2D) DistSq(q Point2D) float64 {
 	return (p.X-q.X)*(p.X-q.X) + (p.Y-q.Y)*(p.Y-q.Y)
-}
-
-func (p Point2D) In(r image.Rectangle) bool {
-	return float64(r.Min.X) <= p.X && p.X < float64(r.Max.X) &&
-		float64(r.Min.Y) <= p.Y && p.Y < float64(r.Max.Y)
 }
 
 func Pt2D(X, Y float64) Point2D {
