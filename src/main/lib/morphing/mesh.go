@@ -120,7 +120,6 @@ func (e *Edge) Equal(oe Edge) bool {
 
 type Mesh struct {
 	Triangles []Triangle
-	Texture   image.Image
 }
 
 func (m *Mesh) Edges() ([]Edge, map[Edge][]Triangle) {
@@ -167,12 +166,18 @@ func (m *Mesh) Vertexes() ([]Vertex, map[Vertex][]Triangle) {
 	return points, ownership
 }
 
-func NewMesh(texture image.Image) *Mesh {
+func NewMesh() *Mesh {
+	mesh := new(Mesh)
+	mesh.Triangles = make([]Triangle, 0)
+
+	return mesh
+}
+
+func NewMeshForImage(texture image.Image) *Mesh {
 	start := Vx(float64(texture.Bounds().Min.X), float64(texture.Bounds().Min.Y))
 	end := Vx(float64(texture.Bounds().Max.X), float64(texture.Bounds().Max.Y))
 
 	mesh := new(Mesh)
-	mesh.Texture = texture
 	mesh.Triangles = make([]Triangle, 2)
 	mesh.Triangles[0] = *NewTriangle(start, Vx(start.X, end.Y), end)
 	mesh.Triangles[1] = *NewTriangle(start, Vx(end.X, start.Y), end)

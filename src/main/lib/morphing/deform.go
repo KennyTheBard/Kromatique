@@ -7,14 +7,23 @@ import (
 	"math"
 )
 
-type MeshDeformation struct {
-	initialMesh, finalMesh *Mesh
-	primitiveMapping       map[Triangle]Triangle
+type CollisionTriangle struct {
+	startVertex, endVertex Vertex
+	startEdge, endEdge     Edge
+	triangle               Triangle
 }
 
-func NewMeshDeformation(mesh *Mesh, dst image.Image, vertexMapping map[Vertex]Vertex, t float64) *MeshDeformation {
+type MeshDeformation struct {
+	srcMesh, dstMesh        *Mesh
+	primitiveMapping        map[Triangle]Triangle
+	collisionTrianglesLines [][]CollisionTriangle
+}
+
+func NewMeshDeformation(mesh *Mesh, vertexMapping map[Vertex]Vertex, t float64) *MeshDeformation {
 	triangles := make([]Triangle, len(mesh.Triangles))
 	primitiveMapping := make(map[Triangle]Triangle)
+
+	var minVx, maxVx Vertex
 	for idxTri, tri := range mesh.Triangles {
 		newPoints := make([]Vertex, 3)
 
@@ -30,24 +39,22 @@ func NewMeshDeformation(mesh *Mesh, dst image.Image, vertexMapping map[Vertex]Ve
 			newPoints[idxPoint] = p
 		}
 
+		for _, p := range newPoints {
+			minVx.X, minVx.Y = math.Min(p.X, minVx.X), math.Min(p.Y, minVx.Y)
+			maxVx.X, maxVx.Y = math.Max(p.X, maxVx.X), math.Max(p.Y, maxVx.Y)
+		}
+
 		triangles[idxTri] = *NewTriangle(newPoints[0], newPoints[1], newPoints[2])
 		primitiveMapping[triangles[idxTri]] = mesh.Triangles[idxTri]
 	}
 
-	finalMesh := NewMesh(dst)
-	finalMesh.Triangles = triangles
+	dstMesh := NewMesh()
+	dstMesh.Triangles = triangles
 
-	mapping := new(MeshDeformation)
-	mapping.initialMesh = mesh
-	mapping.finalMesh = finalMesh
-	mapping.primitiveMapping = primitiveMapping
-	return mapping
-}
-
-func (mesh *MeshDeformation) Deform() image.Image {
-	dstBounds := mesh.finalMesh.Texture.Bounds()
-	ret := utils.CreateRGBA(dstBounds)
-	dstEdges, _ := mesh.finalMesh.Edges()
+	def := new(MeshDeformation)
+	def.srcMesh = mesh
+	def.dstMesh = dstMesh
+	def.primitiveMapping = primitiveMapping
 
 	// define helper function
 	collide := func(e Edge, y float64) Vertex {
@@ -57,13 +64,10 @@ func (mesh *MeshDeformation) Deform() image.Image {
 		return Vx(x, y)
 	}
 
-	type CollisionTriangle struct {
-		startVertex, endVertex Vertex
-		startEdge, endEdge     Edge
-		triangle               Triangle
-	}
+	dstEdges, _ := def.dstMesh.Edges()
+	collisionTrianglesLines := make([][]CollisionTriangle, 0)
 
-	for y := dstBounds.Min.Y; y < dstBounds.Max.Y; y++ {
+	for y := int(math.Floor(minVx.Y)); y < int(math.Ceil(maxVx.Y)); y++ {
 		Y := float64(y) + 0.5
 
 		collisionEdges := make([]Edge, 0)
@@ -102,7 +106,7 @@ func (mesh *MeshDeformation) Deform() image.Image {
 		for i := 0; i < len(collisionVertexes)-1; i++ {
 			middleVertex := Vx((collisionVertexes[i].X+collisionVertexes[i+1].X)/2, collisionVertexes[i].Y)
 
-			for _, t := range mesh.finalMesh.Triangles {
+			for _, t := range def.dstMesh.Triangles {
 				if t.HasVertex(middleVertex) {
 					collisionTriangles[i] = CollisionTriangle{
 						startVertex: collisionVertexes[i],
@@ -116,8 +120,25 @@ func (mesh *MeshDeformation) Deform() image.Image {
 			}
 		}
 
+		collisionTrianglesLines = append(collisionTrianglesLines, collisionTriangles)
+	}
+
+	def.collisionTrianglesLines = collisionTrianglesLines
+
+	return def
+}
+
+func (def *MeshDeformation) Deform(img image.Image) image.Image {
+	bounds := img.Bounds()
+	ret := utils.CreateRGBA(bounds)
+
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		Y := float64(y) + 0.5
+
+		collisionTriangles := def.collisionTrianglesLines[y]
+
 		curr := 0
-		for x := dstBounds.Min.X; x <= dstBounds.Max.X; x++ {
+		for x := bounds.Min.X; x <= bounds.Max.X; x++ {
 			X := float64(x)
 
 			// find collision triangle for the current point
@@ -133,7 +154,7 @@ func (mesh *MeshDeformation) Deform() image.Image {
 			alphaStart := math.Abs(cTri.startEdge.Start.Y-Y) / math.Abs(cTri.startEdge.End.Y-cTri.startEdge.Start.Y)
 			alphaEnd := math.Abs(cTri.endEdge.Start.Y-Y) / math.Abs(cTri.endEdge.End.Y-cTri.endEdge.Start.Y)
 
-			origTri := mesh.primitiveMapping[cTri.triangle]
+			origTri := def.primitiveMapping[cTri.triangle]
 			lerpVertex := func(a, b Vertex, t float64) Vertex {
 				origX := utils.LERP(a.X, b.X, t)
 				origY := utils.LERP(a.Y, b.Y, t)
@@ -164,7 +185,7 @@ func (mesh *MeshDeformation) Deform() image.Image {
 			origEndVertex := lerpVertex(origEndEdge.Start, origEndEdge.End, alphaEnd)
 			origVertex := lerpVertex(origStartVertex, origEndVertex, beta)
 
-			ret.(draw.Image).Set(x, y, mesh.initialMesh.Texture.At(int(math.Round(origVertex.X)), int(math.Round(origVertex.Y))))
+			ret.(draw.Image).Set(x, y, img.At(int(math.Round(origVertex.X)), int(math.Round(origVertex.Y))))
 		}
 	}
 
