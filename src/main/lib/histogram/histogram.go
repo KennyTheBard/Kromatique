@@ -1,12 +1,14 @@
 package histogram
 
 import (
-	"../utils"
+	"fmt"
 	"image"
 	"image/draw"
 	"math"
 
+	"../core"
 	"../strategy"
+	"../utils"
 )
 
 type Histogram interface {
@@ -32,16 +34,10 @@ func (h *ValueHistogram) Cumulative() [256]uint {
 	return cumulative
 }
 
-func NewValueHistogram(values [256]uint) *ValueHistogram {
-	h := new(ValueHistogram)
-	h.values = values
-
-	return h
-}
-
 // ImageHistogram encapsulates the data extracted from an image bundled with the logic
 // used to extract it in order to apply meaningful transformations to it
 type ImageHistogram struct {
+	engine   core.Engine
 	eval     strategy.ColorEvaluation
 	original image.Image
 	values   [256]uint
@@ -64,7 +60,7 @@ func (h *ImageHistogram) Cumulative() [256]uint {
 // Equalize returns a new image corresponding to the last image scanned
 // with this histogram, having a cumulative histogram as close to
 // a linear ramp as possible with the available values
-func (h *ImageHistogram) Equalize(correction strategy.ColorCorrection) image.Image {
+func (h *ImageHistogram) Equalize(correction strategy.ColorCorrection) *core.Promise {
 	values := h.Values()
 	var idealValues [256]uint
 
@@ -79,13 +75,13 @@ func (h *ImageHistogram) Equalize(correction strategy.ColorCorrection) image.Ima
 		idealValues[idx] = individualValue
 	}
 
-	return h.Match(NewValueHistogram(idealValues), correction)
+	return h.Match(&ValueHistogram{values: idealValues}, correction)
 }
 
 // Match returns a new image corresponding to the last image scanned
 // with this histogram, having a cumulative histogram as close to
 // a given set of values as possible with the available values
-func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrection) image.Image {
+func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrection) *core.Promise {
 	values := h.Values()
 	targetCumulative := target.Cumulative()
 	//cumulative := h.Cumulative()
@@ -94,12 +90,6 @@ func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrec
 	for i := 0; i < bounds.Dy(); i++ {
 		valueMap[i] = make([]int, bounds.Dx())
 	}
-
-	//// calculate the length of the value space
-	//space := uint(len(values))
-	//
-	//// calculate slope of ideal cumulative
-	//slope := float64(cumulative[len(cumulative)-1]) / float64(space)
 
 	// create a mapper for each interval
 	mappers := make(map[uint8]uint8)
@@ -128,34 +118,28 @@ func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrec
 		end = nextEnd
 	}
 
+	contract := h.engine.Contract(bounds.Dy())
+
 	// create new image with equalized color
 	ret := utils.CreateRGBA(bounds)
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			pxColor := h.original.At(x, y)
-			val := h.eval(pxColor)
+	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+		y := i
+		if err := contract.PlaceOrder(func() {
+			for x := bounds.Min.X; x < bounds.Max.X; x++ {
+				pxColor := h.original.At(x, y)
+				val := h.eval(pxColor)
 
-			if newVal, ok := mappers[val]; ok {
-				pxColor = correction(pxColor, int16(newVal)-int16(val))
+				if newVal, ok := mappers[val]; ok {
+					pxColor = correction(pxColor, int16(newVal)-int16(val))
+				}
+
+				ret.(draw.Image).Set(x, y, pxColor)
 			}
-
-			ret.(draw.Image).Set(x, y, pxColor)
+		}); err != nil {
+			fmt.Print(err)
+			break
 		}
 	}
 
-	return ret
-}
-
-func NewImageHistogram(img image.Image, eval strategy.ColorEvaluation) *ImageHistogram {
-	h := new(ImageHistogram)
-	h.eval = eval
-	h.original = img
-	for y := img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
-		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-			idx := int(h.eval(img.At(x, y)))
-			h.values[idx] += 1
-		}
-	}
-
-	return h
+	return core.NewPromise(ret, contract)
 }
