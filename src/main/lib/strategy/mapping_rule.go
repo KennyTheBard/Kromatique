@@ -35,6 +35,11 @@ func ComposeRule(condition ColorMapperCondition, ruleTrue, ruleFalse MappingRule
 	}
 }
 
+// Identity returns the given color
+func Identity(in color.Color) color.Color {
+	return in
+}
+
 // Grayscale maps the given color to a gray shade using the
 // standard library default color converter logic
 func Grayscale(in color.Color) color.Color {
@@ -73,7 +78,7 @@ func Negative(in color.Color) color.Color {
 
 // BlackAndWhite maps the given color to black or white depending on a color evaluation
 // function and its output to the color input relative to the given threshold
-func BlackAndWhite(evaluation ColorEvaluation, threshold float64) MappingRule {
+func BlackAndWhite(evaluation ColorEvaluation, threshold uint8) MappingRule {
 	return func(in color.Color) color.Color {
 		val := evaluation(in)
 		if val >= threshold {
@@ -86,7 +91,7 @@ func BlackAndWhite(evaluation ColorEvaluation, threshold float64) MappingRule {
 
 // CorrectionMapping maps the given color to a color obtained by applying
 // the correction strategy with a given factor on each color pixel
-func CorrectionMapping(correction ColorCorrection, factor float64) MappingRule {
+func CorrectionMapping(correction ColorCorrection, factor int16) MappingRule {
 	return func(in color.Color) color.Color {
 		return correction(in, factor)
 	}
@@ -95,5 +100,5 @@ func CorrectionMapping(correction ColorCorrection, factor float64) MappingRule {
 // BrightnessMapping maps the given color to a brighter or darker color
 // depending on the given brightness factor
 func BrightnessMapping(brightnessFactor float64) MappingRule {
-	return CorrectionMapping(LightnessCorrection, brightnessFactor)
+	return CorrectionMapping(LightnessCorrection, int16(utils.ClampUint8(math.Round(brightnessFactor*(math.MaxInt16+1)))))
 }
