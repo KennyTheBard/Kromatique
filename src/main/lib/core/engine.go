@@ -8,7 +8,7 @@ import (
 // encapsulating the logic and displaying a simple interface to its users
 type Engine interface {
 	// PoolContract returns a contract for the given number of tasks
-	Contract(int) Contract
+	Contract() Contract
 	// Stop closes the communication internal channel
 	Stop()
 }
@@ -16,47 +16,47 @@ type Engine interface {
 // PoolEngine is the main engine designed for performance boost,
 // using an internal pool of goroutines in order to execute given tasks
 type PoolEngine struct {
-	workForce  int
+	numWorkers int
 	orderQueue OrderQueue
-	wg         *sync.WaitGroup
+	engineWg   *sync.WaitGroup
 }
 
-func (engine PoolEngine) Contract(orderSize int) Contract {
-	return NewPoolContract(orderSize, engine.orderQueue)
+func (engine PoolEngine) Contract() Contract {
+	return NewPoolContract(engine.orderQueue)
 }
 
 func (engine PoolEngine) Stop() {
 	close(engine.orderQueue)
-	engine.wg.Wait()
+	engine.engineWg.Wait()
 }
 
-func NewPoolEngine(workForce, queueSize int) *PoolEngine {
-	ke := new(PoolEngine)
-	ke.workForce = workForce
-	ke.orderQueue = make(OrderQueue, queueSize)
-	ke.wg = new(sync.WaitGroup)
-	ke.wg.Add(workForce)
+func NewPoolEngine(numWorkers, queueSize int) *PoolEngine {
+	engine := new(PoolEngine)
+	engine.numWorkers = numWorkers
+	engine.orderQueue = make(OrderQueue, queueSize)
+	engine.engineWg = new(sync.WaitGroup)
+	engine.engineWg.Add(numWorkers)
 
-	for i := 0; i < workForce; i++ {
+	for i := 0; i < numWorkers; i++ {
 		go func() {
-			defer ke.wg.Done()
+			defer engine.engineWg.Done()
 
-			for tc := range ke.orderQueue {
+			for tc := range engine.orderQueue {
 				tc.task()
-				tc.wg.Done()
+				tc.taskWg.Done()
 			}
 		}()
 	}
 
-	return ke
+	return engine
 }
 
 // SequentialEngine is an engine designed to function in entirely
 // in the same goroutine as the invoking code
 type SequentialEngine struct{}
 
-func (engine SequentialEngine) Contract(orderSize int) Contract {
-	return NewSequentialContract(orderSize)
+func (engine SequentialEngine) Contract() Contract {
+	return NewSequentialContract()
 }
 
 func (engine SequentialEngine) Stop() {}

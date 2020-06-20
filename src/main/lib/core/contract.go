@@ -1,7 +1,7 @@
 package core
 
 import (
-	"errors"
+	"image"
 	"sync"
 )
 
@@ -9,39 +9,40 @@ import (
 // being responsible for scheduling in the process
 type Contract interface {
 	// PlaceOrder adds the given tasks in the executing schedule
-	PlaceOrder(t Task) error
+	PlaceOrder(t Task)
 	// Deadline blocks the current routine execution until
 	// the contract is fulfilled
 	Deadline()
+
+	Promise(image.Image) *Promise
 }
 
 // PoolContract is an implementation of Contract interface that manages
 // tasks that can be executed concurrently
 type PoolContract struct {
-	limit   int
-	counter int
-	wg      sync.WaitGroup
-	q       chan TaskContract
+	wg sync.WaitGroup
+	q  chan TaskContract
 }
 
-func (s *PoolContract) PlaceOrder(t Task) error {
-	if s.counter >= s.limit {
-		return errors.New("contract limit has been reached")
-	}
-
-	s.counter++
+func (s *PoolContract) PlaceOrder(t Task) {
 	s.wg.Add(1)
-	s.q <- TaskContract{task: t, wg: &s.wg}
-	return nil
+	s.q <- TaskContract{task: t, taskWg: &s.wg}
 }
 
 func (s *PoolContract) Deadline() {
 	s.wg.Wait()
 }
 
-func NewPoolContract(orderSize int, q OrderQueue) *PoolContract {
+func (s *PoolContract) Promise(img image.Image) *Promise {
+	p := new(Promise)
+	p.img = img
+	p.contract = s
+
+	return p
+}
+
+func NewPoolContract(q OrderQueue) *PoolContract {
 	contract := new(PoolContract)
-	contract.limit = orderSize
 	contract.q = q
 
 	return contract
@@ -49,29 +50,26 @@ func NewPoolContract(orderSize int, q OrderQueue) *PoolContract {
 
 // SequentialContract is an implementation of Contract interface that
 // manages sequential execution of given task in the same goroutine
-type SequentialContract struct {
-	limit   int
-	counter int
-}
+type SequentialContract struct{}
 
-func (s *SequentialContract) PlaceOrder(t Task) error {
-	if s.counter >= s.limit {
-		return errors.New("contract limit has been reached")
-	}
-
-	s.counter++
-
+func (s *SequentialContract) PlaceOrder(t Task) {
 	t()
-	return nil
 }
 
 func (s *SequentialContract) Deadline() {
 	return
 }
 
-func NewSequentialContract(orderSize int) *SequentialContract {
+func (s *SequentialContract) Promise(img image.Image) *Promise {
+	p := new(Promise)
+	p.img = img
+	p.contract = s
+
+	return p
+}
+
+func NewSequentialContract() *SequentialContract {
 	contract := new(SequentialContract)
-	contract.limit = orderSize
 
 	return contract
 }

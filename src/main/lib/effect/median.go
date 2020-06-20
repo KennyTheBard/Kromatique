@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -24,11 +23,11 @@ type Median struct {
 func (effect *Median) Apply(img image.Image) *core.Promise {
 	bounds := img.Bounds()
 	ret := utils.CreateRGBA(bounds)
-	contract := effect.engine.Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract()
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				radius := effect.windowRadius
 				windowValues := make([]color.Color, (2*radius+1)*(2*radius+1))
@@ -46,11 +45,8 @@ func (effect *Median) Apply(img image.Image) *core.Promise {
 
 				ret.(draw.Image).Set(x, y, windowValues[(2*radius+1)*(2*radius+1)/2])
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

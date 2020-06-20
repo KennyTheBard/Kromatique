@@ -2,7 +2,6 @@ package blend
 
 import (
 	"../mask"
-	"fmt"
 	"image"
 	"image/draw"
 
@@ -29,11 +28,11 @@ func NewFactory(engine core.Engine) *Factory {
 func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
 	return func(bg, fg image.Image, fgOrigin image.Point, fgMask mask.Mask) *core.Promise {
 		ret := utils.CreateRGBA(bg.Bounds())
-		contract := f.engine.Contract(bg.Bounds().Dy())
+		contract := f.engine.Contract()
 
 		for i := bg.Bounds().Min.Y; i < bg.Bounds().Max.Y; i++ {
 			y := i
-			if err := contract.PlaceOrder(func() {
+			contract.PlaceOrder(func() {
 				for x := bg.Bounds().Min.X; x < bg.Bounds().Max.X; x++ {
 					cbg, cfg := bg.At(x, y), fg.At(x+fgOrigin.X, y+fgOrigin.Y)
 
@@ -44,13 +43,10 @@ func (f Factory) Blend(blendingStrategy BlendingStrategy) Blender {
 
 					ret.(draw.Image).Set(x, y, pxColor)
 				}
-			}); err != nil {
-				fmt.Print(err)
-				break
-			}
+			})
 		}
 
-		return core.NewPromise(ret, contract)
+		return contract.Promise(ret)
 	}
 }
 

@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 
@@ -31,20 +30,17 @@ type Flip struct {
 
 func (effect *Flip) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract()
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				newX, newY := effect.strategy(x, y, img.Bounds())
 				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

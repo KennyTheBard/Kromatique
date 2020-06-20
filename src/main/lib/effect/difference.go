@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 
@@ -19,19 +18,16 @@ type Difference struct {
 
 func (effect *Difference) Apply(imgA, imgB image.Image) *core.Promise {
 	ret := utils.CreateRGBA(imgA.Bounds())
-	contract := effect.engine.Contract(imgA.Bounds().Dy())
+	contract := effect.engine.Contract()
 
 	for i := imgA.Bounds().Min.Y; i < imgA.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := imgA.Bounds().Min.X; x < imgA.Bounds().Max.X; x++ {
 				ret.(draw.Image).Set(x, y, effect.diff(imgA.At(x, y), imgB.At(x, y)))
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

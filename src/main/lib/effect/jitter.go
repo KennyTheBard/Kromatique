@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"math/rand"
@@ -20,7 +19,7 @@ type Jitter struct {
 
 func (effect *Jitter) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract()
 	rand.Seed(time.Now().Unix())
 	randCoordinate := func() int {
 		return rand.Intn(effect.radius*2) - effect.radius
@@ -28,7 +27,7 @@ func (effect *Jitter) Apply(img image.Image) *core.Promise {
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				offsetX, offsetY := randCoordinate(), randCoordinate()
 				newX := utils.Max(utils.Min(x+offsetX, img.Bounds().Max.X), img.Bounds().Min.X)
@@ -36,11 +35,8 @@ func (effect *Jitter) Apply(img image.Image) *core.Promise {
 
 				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

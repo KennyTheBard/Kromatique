@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"math"
@@ -150,22 +149,19 @@ type Distortion struct {
 
 func (effect *Distortion) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract(ret.Bounds().Dy())
+	contract := effect.engine.Contract()
 
 	for i := ret.Bounds().Min.Y; i < ret.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := ret.Bounds().Min.X; x < ret.Bounds().Max.X; x++ {
 				v := effect.lens.VecAt(x, y)
 				newX, newY := effect.edgeHandling(img.Bounds(), int(math.Round(float64(x)+v.X)), int(math.Round(float64(y)+v.Y)))
 
 				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

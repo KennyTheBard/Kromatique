@@ -1,7 +1,6 @@
 package effect
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -21,12 +20,12 @@ type SingleKernel struct {
 
 func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract()
 	radius := effect.kernel.Radius()
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				var newRed, newGreen, newBlue float64
 				for yy := -radius; yy <= radius; yy++ {
@@ -45,13 +44,10 @@ func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 					G: uint16(utils.ClampUint16(newGreen)),
 					B: uint16(utils.ClampUint16(newBlue))})
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }
 
 // MultiKernel encapsulates the logic data needed for a filter using multiple kernels
@@ -65,7 +61,7 @@ type MultiKernel struct {
 
 func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract(img.Bounds().Dy())
+	contract := effect.engine.Contract()
 
 	radiusNumber := len(effect.kernels)
 	radiusList := make([]int, len(effect.kernels))
@@ -75,7 +71,7 @@ func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 
 	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				newRed := make([]float64, radiusNumber)
 				newGreen := make([]float64, radiusNumber)
@@ -102,11 +98,8 @@ func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 						B: uint16(utils.ClampUint16(effect.resultMerging(newBlue))),
 					})
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }
