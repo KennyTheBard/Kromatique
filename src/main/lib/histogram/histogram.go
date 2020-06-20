@@ -1,7 +1,6 @@
 package histogram
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"math"
@@ -118,13 +117,13 @@ func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrec
 		end = nextEnd
 	}
 
-	contract := h.engine.Contract(bounds.Dy())
+	contract := h.engine.Contract()
 
 	// create new image with equalized color
 	ret := utils.CreateRGBA(bounds)
 	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
 		y := i
-		if err := contract.PlaceOrder(func() {
+		contract.PlaceOrder(func() {
 			for x := bounds.Min.X; x < bounds.Max.X; x++ {
 				pxColor := h.original.At(x, y)
 				val := h.eval(pxColor)
@@ -135,11 +134,8 @@ func (h *ImageHistogram) Match(target Histogram, correction strategy.ColorCorrec
 
 				ret.(draw.Image).Set(x, y, pxColor)
 			}
-		}); err != nil {
-			fmt.Print(err)
-			break
-		}
+		})
 	}
 
-	return core.NewPromise(ret, contract)
+	return contract.Promise(ret)
 }

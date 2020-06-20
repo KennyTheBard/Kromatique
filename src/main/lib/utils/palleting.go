@@ -153,7 +153,7 @@ func buildTree(tree leaf, th int) octree {
 			}
 		}
 
-		if total > th {
+		if total > th && tree.ix.start != tree.ix.end {
 			return &branch{subs: []octree{
 				buildTree(tree.divideLeaf(false, false, false), th),
 				buildTree(tree.divideLeaf(false, false, true), th),

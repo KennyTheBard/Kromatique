@@ -1,10 +1,12 @@
 package morphing
 
 import (
-	"../utils"
 	"image"
 	"image/draw"
 	"math"
+
+	"../core"
+	"../utils"
 )
 
 type CollisionTriangle struct {
@@ -14,12 +16,13 @@ type CollisionTriangle struct {
 }
 
 type MeshDeformation struct {
+	engine                  core.Engine
 	srcMesh, dstMesh        *Mesh
 	primitiveMapping        map[Triangle]Triangle
 	collisionTrianglesLines [][]CollisionTriangle
 }
 
-func NewMeshDeformation(mesh *Mesh, vertexMapping map[Vertex]Vertex, t float64) *MeshDeformation {
+func NewMeshDeformation(engine core.Engine, mesh *Mesh, vertexMapping map[Vertex]Vertex, t float64) *MeshDeformation {
 	triangles := make([]Triangle, len(mesh.Triangles))
 	primitiveMapping := make(map[Triangle]Triangle)
 
@@ -52,6 +55,7 @@ func NewMeshDeformation(mesh *Mesh, vertexMapping map[Vertex]Vertex, t float64) 
 	dstMesh.Triangles = triangles
 
 	def := new(MeshDeformation)
+	def.engine = engine
 	def.srcMesh = mesh
 	def.dstMesh = dstMesh
 	def.primitiveMapping = primitiveMapping
@@ -128,66 +132,70 @@ func NewMeshDeformation(mesh *Mesh, vertexMapping map[Vertex]Vertex, t float64) 
 	return def
 }
 
-func (def *MeshDeformation) Deform(img image.Image) image.Image {
+func (def *MeshDeformation) Deform(img image.Image) *core.Promise {
 	bounds := img.Bounds()
 	ret := utils.CreateRGBA(bounds)
 
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+	contract := def.engine.Contract()
+	for i := bounds.Min.Y; i < bounds.Max.Y; i++ {
+		y := i
 		Y := float64(y) + 0.5
 
-		collisionTriangles := def.collisionTrianglesLines[y]
+		contract.PlaceOrder(func() {
+			collisionTriangles := def.collisionTrianglesLines[y]
 
-		curr := 0
-		for x := bounds.Min.X; x <= bounds.Max.X; x++ {
-			X := float64(x)
+			curr := 0
+			for x := bounds.Min.X; x <= bounds.Max.X; x++ {
+				X := float64(x)
 
-			// find collision triangle for the current point
-			for i := curr; i < len(collisionTriangles); i++ {
-				if collisionTriangles[i].startVertex.X <= X && X <= collisionTriangles[i].endVertex.X {
-					curr = i
-					break
+				// find collision triangle for the current point
+				for i := curr; i < len(collisionTriangles); i++ {
+					if collisionTriangles[i].startVertex.X <= X && X <= collisionTriangles[i].endVertex.X {
+						curr = i
+						break
+					}
 				}
+
+				cTri := collisionTriangles[curr]
+				beta := (X - cTri.startVertex.X) / (cTri.endVertex.X - cTri.startVertex.X)
+				alphaStart := math.Abs(cTri.startEdge.Start.Y-Y) / math.Abs(cTri.startEdge.End.Y-cTri.startEdge.Start.Y)
+				alphaEnd := math.Abs(cTri.endEdge.Start.Y-Y) / math.Abs(cTri.endEdge.End.Y-cTri.endEdge.Start.Y)
+
+				origTri := def.primitiveMapping[cTri.triangle]
+				lerpVertex := func(a, b Vertex, t float64) Vertex {
+					origX := utils.LERP(a.X, b.X, t)
+					origY := utils.LERP(a.Y, b.Y, t)
+
+					return Vx(origX, origY)
+				}
+
+				origStartEdge := Edge{}
+				origEndEdge := Edge{}
+				for i, p := range origTri.points {
+					if cTri.triangle.points[i].Equal(cTri.startEdge.Start) {
+						origStartEdge.Start = p
+					}
+
+					if cTri.triangle.points[i].Equal(cTri.startEdge.End) {
+						origStartEdge.End = p
+					}
+
+					if cTri.triangle.points[i].Equal(cTri.endEdge.Start) {
+						origEndEdge.Start = p
+					}
+
+					if cTri.triangle.points[i].Equal(cTri.endEdge.End) {
+						origEndEdge.End = p
+					}
+				}
+				origStartVertex := lerpVertex(origStartEdge.Start, origStartEdge.End, alphaStart)
+				origEndVertex := lerpVertex(origEndEdge.Start, origEndEdge.End, alphaEnd)
+				origVertex := lerpVertex(origStartVertex, origEndVertex, beta)
+
+				ret.(draw.Image).Set(x, y, img.At(int(math.Round(origVertex.X)), int(math.Round(origVertex.Y))))
 			}
-
-			cTri := collisionTriangles[curr]
-			beta := (X - cTri.startVertex.X) / (cTri.endVertex.X - cTri.startVertex.X)
-			alphaStart := math.Abs(cTri.startEdge.Start.Y-Y) / math.Abs(cTri.startEdge.End.Y-cTri.startEdge.Start.Y)
-			alphaEnd := math.Abs(cTri.endEdge.Start.Y-Y) / math.Abs(cTri.endEdge.End.Y-cTri.endEdge.Start.Y)
-
-			origTri := def.primitiveMapping[cTri.triangle]
-			lerpVertex := func(a, b Vertex, t float64) Vertex {
-				origX := utils.LERP(a.X, b.X, t)
-				origY := utils.LERP(a.Y, b.Y, t)
-
-				return Vx(origX, origY)
-			}
-
-			origStartEdge := Edge{}
-			origEndEdge := Edge{}
-			for i, p := range origTri.points {
-				if cTri.triangle.points[i].Equal(cTri.startEdge.Start) {
-					origStartEdge.Start = p
-				}
-
-				if cTri.triangle.points[i].Equal(cTri.startEdge.End) {
-					origStartEdge.End = p
-				}
-
-				if cTri.triangle.points[i].Equal(cTri.endEdge.Start) {
-					origEndEdge.Start = p
-				}
-
-				if cTri.triangle.points[i].Equal(cTri.endEdge.End) {
-					origEndEdge.End = p
-				}
-			}
-			origStartVertex := lerpVertex(origStartEdge.Start, origStartEdge.End, alphaStart)
-			origEndVertex := lerpVertex(origEndEdge.Start, origEndEdge.End, alphaEnd)
-			origVertex := lerpVertex(origStartVertex, origEndVertex, beta)
-
-			ret.(draw.Image).Set(x, y, img.At(int(math.Round(origVertex.X)), int(math.Round(origVertex.Y))))
-		}
+		})
 	}
 
-	return ret
+	return contract.Promise(ret)
 }

@@ -3,6 +3,7 @@ package imageio
 import (
 	"errors"
 	"image"
+	"image/gif"
 	"image/jpeg"
 	"image/png"
 	"os"
@@ -10,20 +11,24 @@ import (
 )
 
 // Save write the given image in a file of chosen format at the given path
-func Save(img image.Image, path, format string) error {
+func Save(img interface{}, path, format string) error {
 	file, errCreate := os.Create(strings.Join([]string{path, format}, "."))
 	if errCreate != nil {
 		return errCreate
 	}
 	defer file.Close()
 
-	switch format {
+	switch strings.ToLower(format) {
 	case "png":
-		return png.Encode(file, img)
+		return png.Encode(file, img.(image.Image))
 
 	case "jpeg", "jpg":
-		return jpeg.Encode(file, img, &jpeg.Options{Quality: jpeg.DefaultQuality})
-	}
+		return jpeg.Encode(file, img.(image.Image), &jpeg.Options{Quality: jpeg.DefaultQuality})
 
-	return errors.New("Unsupported file format: " + format)
+	case "gif":
+		return gif.EncodeAll(file, img.(*gif.GIF))
+
+	default:
+		return errors.New("Unsupported file format: " + format)
+	}
 }
