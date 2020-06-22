@@ -10,12 +10,12 @@ import (
 // MappingRule modifies a color using contained logic
 type MappingRule func(color.Color) color.Color
 
-// ColorMapperCondition filters colors based on contained logic
-type ColorMapperCondition func(color.Color) bool
+// Condition filters colors based on contained logic
+type Condition func(color.Color) bool
 
-// AddCondition returns a copy of the MappingRule conditioned with
-// the given condition; this can be helpful in order to chain conditions
-func AddCondition(rule MappingRule, condition ColorMapperCondition) MappingRule {
+// AddCondition returns MappingRule that execute the given
+// MappingRule only if the given Condition evaluates to true
+func AddCondition(rule MappingRule, condition Condition) MappingRule {
 	return func(color color.Color) color.Color {
 		if condition(color) {
 			return rule(color)
@@ -25,7 +25,9 @@ func AddCondition(rule MappingRule, condition ColorMapperCondition) MappingRule 
 	}
 }
 
-func ComposeRule(condition ColorMapperCondition, ruleTrue, ruleFalse MappingRule) MappingRule {
+// ComposeRule returns a MappingRule that executes the first MappingRule if
+// the given Condition returns true, or second MappingRule for false
+func ComposeRule(condition Condition, ruleTrue, ruleFalse MappingRule) MappingRule {
 	return func(color color.Color) color.Color {
 		if condition(color) {
 			return ruleTrue(color)

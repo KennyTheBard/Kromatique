@@ -9,11 +9,12 @@ import (
 // being responsible for scheduling in the process
 type Contract interface {
 	// PlaceOrder adds the given tasks in the executing schedule
-	PlaceOrder(t Task)
+	PlaceOrder(Task)
 	// Deadline blocks the current routine execution until
 	// the contract is fulfilled
 	Deadline()
-
+	// Promise returns a Promise of the given image with access
+	// to the current Contract object in order to synchronize results
 	Promise(image.Image) *Promise
 }
 

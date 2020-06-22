@@ -31,6 +31,10 @@ func (p Point2D) DistSq(q Point2D) float64 {
 	return (p.X-q.X)*(p.X-q.X) + (p.Y-q.Y)*(p.Y-q.Y)
 }
 
+func (p Point2D) Diff(q Point2D) Point2D {
+	return Pt2D(p.X-q.X, p.Y-q.Y)
+}
+
 func Pt2D(X, Y float64) Point2D {
 	return Point2D{X: X, Y: Y}
 }

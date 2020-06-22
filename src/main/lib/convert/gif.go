@@ -20,19 +20,19 @@ func ImageToGif(engine core.Engine, images []image.Image, delays []int, colorPal
 	}
 
 	contract := engine.Contract()
-	pelletedImages := make([]*image.Paletted, len(images))
+	palletedImages := make([]*image.Paletted, len(images))
 	for idx := range images {
 		curr := idx
 		contract.PlaceOrder(func() {
-			pelletedImages[curr] = image.NewPaletted(images[curr].Bounds(), utils.GeneratePallet(images[curr], colorPalletSize))
-			draw.Draw(pelletedImages[curr], pelletedImages[curr].Rect, images[curr], images[curr].Bounds().Min, draw.Over)
+			palletedImages[curr] = image.NewPaletted(images[curr].Bounds(), utils.GeneratePallet(images[curr], colorPalletSize))
+			draw.Draw(palletedImages[curr], palletedImages[curr].Rect, images[curr], images[curr].Bounds().Min, draw.Over)
 		})
 	}
 
 	contract.Deadline()
 
 	gifImage := &gif.GIF{
-		Image:           pelletedImages,
+		Image:           palletedImages,
 		Delay:           delays,
 		LoopCount:       0,
 		Disposal:        nil,

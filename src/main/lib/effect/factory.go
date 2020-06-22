@@ -33,8 +33,8 @@ func (f Factory) VFlip() *Flip {
 	return effect
 }
 
-func (f Factory) SingleKernelFilter(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) *SingleKernel {
-	effect := new(SingleKernel)
+func (f Factory) Filter(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) *Filter {
+	effect := new(Filter)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
 	effect.kernel = kernel
@@ -42,8 +42,8 @@ func (f Factory) SingleKernelFilter(edgeHandling strategy.EdgeHandling, kernel u
 	return effect
 }
 
-func (f Factory) MultiKernelFilter(edgeHandling strategy.EdgeHandling, resultMerging strategy.ResultMerger, kernels ...utils.Kernel) *MultiKernel {
-	effect := new(MultiKernel)
+func (f Factory) MultiFilter(edgeHandling strategy.EdgeHandling, resultMerging strategy.ColorMerger, kernels ...utils.Kernel) *MultiFilter {
+	effect := new(MultiFilter)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
 	effect.resultMerging = resultMerging
@@ -52,7 +52,7 @@ func (f Factory) MultiKernelFilter(edgeHandling strategy.EdgeHandling, resultMer
 	return effect
 }
 
-func (f Factory) Distortion(edgeHandling strategy.EdgeHandling, lens Lens) *Distortion {
+func (f Factory) Distortion(edgeHandling strategy.EdgeHandling, lens strategy.Lens) *Distortion {
 	effect := new(Distortion)
 	effect.engine = f.engine
 	effect.edgeHandling = edgeHandling
@@ -69,7 +69,7 @@ func (f Factory) Difference(diff strategy.ColorDifference) *Difference {
 	return effect
 }
 
-func (f Factory) ColorMapper(rules []strategy.MappingRule) *ColorMapper {
+func (f Factory) ColorMapper(rules ...strategy.MappingRule) *ColorMapper {
 	effect := new(ColorMapper)
 	effect.engine = f.engine
 	effect.rules = rules
@@ -77,10 +77,9 @@ func (f Factory) ColorMapper(rules []strategy.MappingRule) *ColorMapper {
 	return effect
 }
 
-func (f Factory) Scale(scaleFactorStrategy strategy.ScalingTarget, colorSamplingStrategy ColorSamplingStrategy) *Scale {
+func (f Factory) Scale(colorSamplingStrategy strategy.ColorSampling) *Scale {
 	effect := new(Scale)
 	effect.engine = f.engine
-	effect.scaleFactorStrategy = scaleFactorStrategy
 	effect.colorSamplingStrategy = colorSamplingStrategy
 
 	return effect

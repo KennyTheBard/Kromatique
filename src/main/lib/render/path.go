@@ -34,12 +34,36 @@ func skeletonSubpath(path geometry.Path, start, end float64, startPoint, endPoin
 
 func PathRender(path geometry.Path, paint Painter, width float64) image.Image {
 	points := skeletonSubpath(path, 0, 1, path.GetPoint(0), path.GetPoint(1))
-	ret := utils.CreateRGBA(image.Rect(0, 0, 100, 100))
+
+	start, end := geometry.Pt2D(0, 0), geometry.Pt2D(0, 0)
+	for _, p := range points {
+		if p.X < start.X {
+			start.X = p.X
+		}
+
+		if p.Y < start.Y {
+			start.Y = p.Y
+		}
+
+		if p.X > end.X {
+			end.X = p.X
+		}
+
+		if p.Y > end.Y {
+			end.Y = p.Y
+		}
+	}
+	ret := utils.CreateRGBA(image.Rect(int(math.Floor(start.X-width-1)), int(math.Floor(start.Y-width-1)), int(math.Ceil(end.X+width+1)), int(math.Ceil(end.Y+width+1))))
 
 	for _, p := range points {
-		x, y := int(math.Round(p.X)), int(math.Round(p.Y))
-		//x, y := int(math.Floor(p.X)), int(math.Floor(p.Y))
-		ret.(draw.Image).Set(x, y, paint(1, x, y))
+		for y := int(math.Floor(p.Y - width)); y <= int(math.Ceil(p.Y+width)); y++ {
+			for x := int(math.Floor(p.X - width)); x <= int(math.Ceil(p.X+width)); x++ {
+				op := geometry.Pt2D(float64(x), float64(y))
+				if op.DistSq(p) <= width*width {
+					ret.(draw.Image).Set(x, y, paint(1, x, y))
+				}
+			}
+		}
 	}
 
 	//for y := mbr.Min.Y; y < mbr.Max.Y; y++ {

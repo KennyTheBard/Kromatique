@@ -31,7 +31,7 @@ func (object *Object2D) Scale(x, y float64) *Object2D {
 }
 
 func (object *Object2D) Rotate(a float64) *Object2D {
-	object.Model().Rotate(-a)
+	object.Model().Rotate(a)
 	object.inverse = object.Inverse().Multiply(RotateMatrix(a))
 	return object
 }

@@ -4,21 +4,22 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"math"
 
 	"../core"
 	"../strategy"
 	"../utils"
 )
 
-// SingleKernel encapsulates the data needed for a filter using a single kernel
+// Filter encapsulates the data needed for a filter using a single kernel
 // and implements the general way such a filter is applied on an image
-type SingleKernel struct {
+type Filter struct {
 	engine       core.Engine
 	edgeHandling strategy.EdgeHandling
 	kernel       utils.Kernel
 }
 
-func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
+func (effect *Filter) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.engine.Contract()
 	radius := effect.kernel.Radius()
@@ -27,22 +28,24 @@ func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 		y := i
 		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				var newRed, newGreen, newBlue float64
+				var newRed, newGreen, newBlue, newAlpha float64
 				for yy := -radius; yy <= radius; yy++ {
 					for xx := -radius; xx <= radius; xx++ {
 						newX, newY := effect.edgeHandling(img.Bounds(), x+xx, y+yy)
-						r, g, b, _ := img.At(newX, newY).RGBA()
+						r, g, b, a := img.At(newX, newY).RGBA()
 
 						newRed += float64(r) * effect.kernel.Get(xx+radius, yy+radius)
 						newGreen += float64(g) * effect.kernel.Get(xx+radius, yy+radius)
 						newBlue += float64(b) * effect.kernel.Get(xx+radius, yy+radius)
+						newAlpha += float64(a) * effect.kernel.Get(xx+radius, yy+radius)
 					}
 				}
 
 				ret.(draw.Image).Set(x, y, color.RGBA64{
 					R: uint16(utils.ClampUint16(newRed)),
 					G: uint16(utils.ClampUint16(newGreen)),
-					B: uint16(utils.ClampUint16(newBlue))})
+					B: uint16(utils.ClampUint16(newBlue)),
+					A: uint16(utils.ClampUint16(newAlpha))})
 			}
 		})
 	}
@@ -50,20 +53,20 @@ func (effect *SingleKernel) Apply(img image.Image) *core.Promise {
 	return contract.Promise(ret)
 }
 
-// MultiKernel encapsulates the logic data needed for a filter using multiple kernels
+// MultiFilter encapsulates the logic data needed for a filter using multiple kernels
 // and implements a customizable way of defining the behaviour
-type MultiKernel struct {
+type MultiFilter struct {
 	engine        core.Engine
 	edgeHandling  strategy.EdgeHandling
-	resultMerging strategy.ResultMerger
+	resultMerging strategy.ColorMerger
 	kernels       []utils.Kernel
 }
 
-func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
+func (effect *MultiFilter) Apply(img image.Image) *core.Promise {
 	ret := utils.CreateRGBA(img.Bounds())
 	contract := effect.engine.Contract()
 
-	radiusNumber := len(effect.kernels)
+	numKernels := len(effect.kernels)
 	radiusList := make([]int, len(effect.kernels))
 	for i, _ := range radiusList {
 		radiusList[i] = effect.kernels[i].Radius()
@@ -73,30 +76,32 @@ func (effect *MultiKernel) Apply(img image.Image) *core.Promise {
 		y := i
 		contract.PlaceOrder(func() {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				newRed := make([]float64, radiusNumber)
-				newGreen := make([]float64, radiusNumber)
-				newBlue := make([]float64, radiusNumber)
+				newColors := make([]color.Color, numKernels)
 
-				for index, kernel := range effect.kernels {
-					radius := radiusList[index]
+				for idx, kernel := range effect.kernels {
+					radius := radiusList[idx]
+					var newRed, newGreen, newBlue, newAlpha float64
 					for yy := -radius; yy <= radius; yy++ {
 						for xx := -radius; xx <= radius; xx++ {
 							newX, newY := effect.edgeHandling(img.Bounds(), x+xx, y+yy)
-							r, g, b, _ := img.At(newX, newY).RGBA()
+							r, g, b, a := img.At(newX, newY).RGBA()
 
-							newRed[index] += float64(r) * kernel.Get(xx+radius, yy+radius)
-							newGreen[index] += float64(g) * kernel.Get(xx+radius, yy+radius)
-							newBlue[index] += float64(b) * kernel.Get(xx+radius, yy+radius)
+							newRed += float64(r) * kernel.Get(xx+radius, yy+radius)
+							newGreen += float64(g) * kernel.Get(xx+radius, yy+radius)
+							newBlue += float64(b) * kernel.Get(xx+radius, yy+radius)
+							newAlpha += float64(a) * kernel.Get(xx+radius, yy+radius)
 						}
+					}
+
+					newColors[idx] = color.RGBA64{
+						R: uint16(utils.ClampUint16(math.Round(math.Abs(newRed)))),
+						G: uint16(utils.ClampUint16(math.Round(math.Abs(newGreen)))),
+						B: uint16(utils.ClampUint16(math.Round(math.Abs(newBlue)))),
+						A: uint16(utils.ClampUint16(math.Round(math.Abs(newAlpha)))),
 					}
 				}
 
-				ret.(draw.Image).Set(x, y,
-					color.RGBA64{
-						R: uint16(utils.ClampUint16(effect.resultMerging(newRed))),
-						G: uint16(utils.ClampUint16(effect.resultMerging(newGreen))),
-						B: uint16(utils.ClampUint16(effect.resultMerging(newBlue))),
-					})
+				ret.(draw.Image).Set(x, y, effect.resultMerging(newColors))
 			}
 		})
 	}
