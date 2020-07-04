@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	""github.com/kennythebard/kromatique/utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // BlendingStrategy receives two colors and returns a blend between the two
