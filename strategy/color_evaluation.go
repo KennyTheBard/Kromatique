@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorEvaluation is a function that transform a given color with multiple

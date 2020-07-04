@@ -1,13 +1,14 @@
 package effect
 
 import (
-	"../core"
-	"../strategy"
-	"../utils"
 	"image"
 	"image/color"
 	"image/draw"
 	"sort"
+
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/strategy"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Median serves as a generic customizable structure that encapsulates

@@ -6,8 +6,8 @@ import (
 	"image/draw"
 	"image/gif"
 
-	"../core"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 func ImageToGif(images []image.Image, delays []int, colorPalletSize int) (*gif.GIF, error) {

@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/draw"
 
-	"../core"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // FlipperStrategy returns the flipped position for a given position in the bounds of the image

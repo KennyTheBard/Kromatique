@@ -7,9 +7,9 @@ import (
 	"math"
 	"sort"
 
-	"../core"
-	"../geometry"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/geometry"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 func ShapeRender(shape geometry.Shape, paint Painter) image.Image {

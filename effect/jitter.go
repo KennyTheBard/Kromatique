@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"../core"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Jitter serves as a generic customizable structure that encapsulates

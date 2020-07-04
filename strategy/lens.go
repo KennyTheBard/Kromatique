@@ -4,8 +4,8 @@ import (
 	"image"
 	"math"
 
-	"../geometry"
-	"../utils"
+	"github.com/kennythebard/kromatique/geometry"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Vector is a struct than encapsulates an Euclidean vector that

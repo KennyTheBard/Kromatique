@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/draw"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 func Morph(src, dst image.Image, srcPoints, dstPoints []Vertex, numSteps int) []image.Image {

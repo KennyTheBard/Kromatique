@@ -1,11 +1,12 @@
 package render
 
 import (
-	"../geometry"
-	"../utils"
 	"image"
 	"image/draw"
 	"math"
+
+	"github.com/kennythebard/kromatique/geometry"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 const MaxDistBetween2Points = 1

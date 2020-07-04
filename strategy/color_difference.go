@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorDifference takes 2 colors and return a difference between them based

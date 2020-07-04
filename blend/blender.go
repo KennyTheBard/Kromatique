@@ -1,12 +1,12 @@
 package blend
 
 import (
-	"../mask"
 	"image"
 	"image/draw"
 
-	"../core"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/mask"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Blender is a function that receives 2 images, a background and a foreground one

@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // MappingRule modifies a color using contained logic

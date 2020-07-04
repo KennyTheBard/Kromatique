@@ -5,8 +5,8 @@ import (
 	"image/draw"
 	"math"
 
-	"../core"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 type CollisionTriangle struct {

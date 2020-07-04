@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorSampling encapsulates a strategy used to decide what color

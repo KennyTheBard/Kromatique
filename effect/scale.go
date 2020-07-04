@@ -1,11 +1,12 @@
 package effect
 
 import (
-	"../core"
-	"../strategy"
-	"../utils"
 	"image"
 	"image/draw"
+
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/strategy"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Scale serves as a generic customizable structure that encapsulates

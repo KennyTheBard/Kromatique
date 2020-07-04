@@ -6,9 +6,9 @@ import (
 	"image/draw"
 	"math"
 
-	"../core"
-	"../strategy"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/strategy"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Filter encapsulates the data needed for a filter using a single kernel

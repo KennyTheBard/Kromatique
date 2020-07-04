@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"../position"
+	"github.com/kennythebard/kromatique/position"
 )
 
 // ImageSlice is an Image interface implementation that encapsulate

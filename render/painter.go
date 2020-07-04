@@ -3,7 +3,7 @@ package render
 import (
 	"image/color"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 type Painter func(float64, int, int) color.Color

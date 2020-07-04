@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"../utils"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorMerger defines an interface for all functions used

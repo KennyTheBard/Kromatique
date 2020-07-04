@@ -1,8 +1,9 @@
 package strategy
 
 import (
-	"../utils"
 	"image/color"
+
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorCorrection is a function that shifts the value of a color by

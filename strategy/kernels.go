@@ -1,8 +1,9 @@
 package strategy
 
 import (
-	"../utils"
 	"math"
+
+	"github.com/kennythebard/kromatique/utils"
 )
 
 func BoxBlurKernel(radius uint) utils.Kernel {

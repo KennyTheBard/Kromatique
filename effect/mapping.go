@@ -4,9 +4,9 @@ import (
 	"image"
 	"image/draw"
 
-	"../core"
-	"../strategy"
-	"../utils"
+	"github.com/kennythebard/kromatique/core"
+	"github.com/kennythebard/kromatique/strategy"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // ColorMapper serves as a generic customizable structure that encapsulates

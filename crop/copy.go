@@ -4,8 +4,8 @@ import (
 	"image"
 	"image/draw"
 
-	"../position"
-	"../utils"
+	"github.com/kennythebard/kromatique/position"
+	"github.com/kennythebard/kromatique/utils"
 )
 
 // Copy returns a cropped image obtained by drawing a segment of the old image
