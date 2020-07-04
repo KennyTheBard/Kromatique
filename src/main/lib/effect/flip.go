@@ -12,35 +12,35 @@ import (
 type FlipperStrategy func(int, int, image.Rectangle) (int, int)
 
 // HorizontalFlip returns the given position flipped horizontally
-func HorizontalFlip(x, y int, bounds image.Rectangle) (int, int) {
+func HorizontalFlipper(x, y int, bounds image.Rectangle) (int, int) {
 	return bounds.Max.X - (x - bounds.Min.X), y
 }
 
 // VerticalFlip returns the given position flipped vertically
-func VerticalFlip(x, y int, bounds image.Rectangle) (int, int) {
+func VerticalFlipper(x, y int, bounds image.Rectangle) (int, int) {
 	return x, bounds.Max.Y - (y - bounds.Min.Y)
 }
 
-// Flip serves as a generic customizable structure that encapsulates
-// the logic needed to apply a flipping strategy
-type Flip struct {
-	engine   core.Engine
-	strategy FlipperStrategy
+// Flip returns the given image.Image flipper by given FlipperStrategy
+func Flip(img image.Image, strategy FlipperStrategy) image.Image {
+	ret := utils.CreateRGBA(img.Bounds())
+
+	core.Parallelize(img.Bounds().Dy(), func(y int) {
+		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
+			newX, newY := strategy(x, y, img.Bounds())
+			ret.(draw.Image).Set(x, y, img.At(newX, newY))
+		}
+	})
+
+	return ret
 }
 
-func (effect *Flip) Apply(img image.Image) *core.Promise {
-	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract()
+// FlipHorizontal returns the given image.Image flipper horizontally
+func FlipHorizontal(img image.Image) image.Image {
+	return Flip(img, HorizontalFlipper)
+}
 
-	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
-		y := i
-		contract.PlaceOrder(func() {
-			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
-				newX, newY := effect.strategy(x, y, img.Bounds())
-				ret.(draw.Image).Set(x, y, img.At(newX, newY))
-			}
-		})
-	}
-
-	return contract.Promise(ret)
+// FlipHorizontal returns the given image.Image flipper vertically
+func FlipVertical(img image.Image) image.Image {
+	return Flip(img, VerticalFlipper)
 }

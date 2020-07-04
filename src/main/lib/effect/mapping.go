@@ -11,28 +11,20 @@ import (
 
 // ColorMapper serves as a generic customizable structure that encapsulates
 // the logic needed to apply a series of MappingRule on an image
-type ColorMapper struct {
-	engine core.Engine
-	rules  []strategy.MappingRule
-}
+func Adjust(rules ...strategy.MappingRule) func(image.Image) image.Image {
+	return func(img image.Image) image.Image {
+		ret := utils.CreateRGBA(img.Bounds())
 
-func (effect *ColorMapper) Apply(img image.Image) *core.Promise {
-	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract()
-
-	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
-		y := i
-		contract.PlaceOrder(func() {
+		core.Parallelize(img.Bounds().Dy(), func(y int) {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				currentColor := img.At(x, y)
-				for _, rule := range effect.rules {
+				for _, rule := range rules {
 					currentColor = rule(currentColor)
 				}
 
 				ret.(draw.Image).Set(x, y, currentColor)
 			}
 		})
+		return ret
 	}
-
-	return contract.Promise(ret)
 }

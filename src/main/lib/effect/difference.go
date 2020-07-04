@@ -9,25 +9,18 @@ import (
 	"../utils"
 )
 
-// ColorDifference serves as a generic customizable structure that encapsulates
+// Difference serves as a generic customizable structure that encapsulates
 // the logic needed to apply a given difference strategy
-type Difference struct {
-	engine core.Engine
-	diff   strategy.ColorDifference
-}
+func Difference(diff strategy.ColorDifference) func(image.Image, image.Image) image.Image {
+	return func(imgA, imgB image.Image) image.Image {
+		ret := utils.CreateRGBA(imgA.Bounds())
 
-func (effect *Difference) Apply(imgA, imgB image.Image) *core.Promise {
-	ret := utils.CreateRGBA(imgA.Bounds())
-	contract := effect.engine.Contract()
-
-	for i := imgA.Bounds().Min.Y; i < imgA.Bounds().Max.Y; i++ {
-		y := i
-		contract.PlaceOrder(func() {
+		core.Parallelize(imgA.Bounds().Dy(), func(y int) {
 			for x := imgA.Bounds().Min.X; x < imgA.Bounds().Max.X; x++ {
-				ret.(draw.Image).Set(x, y, effect.diff(imgA.At(x, y), imgB.At(x, y)))
+				ret.(draw.Image).Set(x, y, diff(imgA.At(x, y), imgB.At(x, y)))
 			}
 		})
-	}
 
-	return contract.Promise(ret)
+		return ret
+	}
 }

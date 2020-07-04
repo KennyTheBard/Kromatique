@@ -4,11 +4,10 @@ import (
 	"image"
 	"image/draw"
 
-	"../core"
 	"../utils"
 )
 
-func Morph(engine core.Engine, src, dst image.Image, srcPoints, dstPoints []Vertex, numSteps int) []image.Image {
+func Morph(src, dst image.Image, srcPoints, dstPoints []Vertex, numSteps int) []image.Image {
 	if len(srcPoints) != len(dstPoints) {
 		panic("Unequal number of points for images")
 	}
@@ -40,16 +39,13 @@ func Morph(engine core.Engine, src, dst image.Image, srcPoints, dstPoints []Vert
 	}
 	ts = append(ts, 1.0)
 
-	fgPromises := make([]*core.Promise, len(ts))
-	bgPromises := make([]*core.Promise, len(ts))
-	for i, t := range ts {
-		fgPromises[i] = NewMeshDeformation(engine, srcMesh, src2dst, t).Deform(src)
-		bgPromises[i] = NewMeshDeformation(engine, dstMesh, dst2src, 1-t).Deform(dst)
+	images := make([]image.Image, 0)
+
+	for _, t := range ts {
+		fg := NewMeshDeformation(srcMesh, src2dst, t).Deform(src)
+		bg := NewMeshDeformation(dstMesh, dst2src, 1-t).Deform(dst)
+		images = append(images, blend(fg, bg, t))
 	}
 
-	images := make([]image.Image, 0)
-	for i, t := range ts {
-		images = append(images, blend(fgPromises[i].Result(), bgPromises[i].Result(), t))
-	}
 	return images
 }

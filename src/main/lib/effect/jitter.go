@@ -12,22 +12,15 @@ import (
 
 // Jitter serves as a generic customizable structure that encapsulates
 // the logic needed to apply a jitter effect on an image
-type Jitter struct {
-	engine core.Engine
-	radius int
-}
+func Jitter(radius int) func(image.Image) image.Image {
+	return func(img image.Image) image.Image {
+		ret := utils.CreateRGBA(img.Bounds())
+		rand.Seed(time.Now().Unix())
+		randCoordinate := func() int {
+			return rand.Intn(radius*2) - radius
+		}
 
-func (effect *Jitter) Apply(img image.Image) *core.Promise {
-	ret := utils.CreateRGBA(img.Bounds())
-	contract := effect.engine.Contract()
-	rand.Seed(time.Now().Unix())
-	randCoordinate := func() int {
-		return rand.Intn(effect.radius*2) - effect.radius
-	}
-
-	for i := img.Bounds().Min.Y; i < img.Bounds().Max.Y; i++ {
-		y := i
-		contract.PlaceOrder(func() {
+		core.Parallelize(img.Bounds().Dy(), func(y int) {
 			for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
 				offsetX, offsetY := randCoordinate(), randCoordinate()
 				newX := utils.Max(utils.Min(x+offsetX, img.Bounds().Max.X), img.Bounds().Min.X)
@@ -36,7 +29,7 @@ func (effect *Jitter) Apply(img image.Image) *core.Promise {
 				ret.(draw.Image).Set(x, y, img.At(newX, newY))
 			}
 		})
-	}
 
-	return contract.Promise(ret)
+		return ret
+	}
 }

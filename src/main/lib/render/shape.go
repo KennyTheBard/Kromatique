@@ -7,6 +7,7 @@ import (
 	"math"
 	"sort"
 
+	"../core"
 	"../geometry"
 	"../utils"
 )
@@ -101,7 +102,7 @@ func PolygonRender(shape *geometry.Polygon, paint Painter) image.Image {
 	}
 
 	// iterate through each line and render contained pixels
-	for y := mbr.Min.Y; y <= mbr.Max.Y; y++ {
+	core.Parallelize(mbr.Dy(), func(y int) {
 		Y := float64(y) + 0.5
 
 		collisionMap := make(map[int]geometry.Point2D)
@@ -192,7 +193,7 @@ func PolygonRender(shape *geometry.Polygon, paint Painter) image.Image {
 				}
 			}
 		}
-	}
+	})
 
 	return ret
 }

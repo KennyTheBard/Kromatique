@@ -58,6 +58,12 @@ func GrayscaleRatioFactory(redRatio, greenRatio, blueRatio float64) MappingRule 
 	}
 }
 
+func Lightness(in color.Color) color.Color {
+	r, g, b, a := in.RGBA()
+	gray := utils.ClampUint16(math.Floor(float64(r)*0.2126 + float64(g)*0.7152 + float64(b)*0.0722))
+	return color.RGBA64{R: uint16(gray), G: uint16(gray), B: uint16(gray), A: uint16(a)}
+}
+
 // Sepia maps the given color to a sepia shade
 func Sepia(in color.Color) color.Color {
 	r, g, b, a := in.RGBA()
