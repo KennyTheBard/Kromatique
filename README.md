@@ -1,1 +1,1 @@
-# Krom - image processing library
+# Kromatique - image processing library
