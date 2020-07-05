@@ -31,9 +31,9 @@ func ComposeRule(condition Condition, ruleTrue, ruleFalse MappingRule) MappingRu
 	return func(color color.Color) color.Color {
 		if condition(color) {
 			return ruleTrue(color)
-		} else {
-			return ruleFalse(color)
 		}
+
+		return ruleFalse(color)
 	}
 }
 
@@ -58,6 +58,8 @@ func GrayscaleRatioFactory(redRatio, greenRatio, blueRatio float64) MappingRule 
 	}
 }
 
+// Lightness returns a grayscale color for the given color
+// calculated based on lightness equation
 func Lightness(in color.Color) color.Color {
 	r, g, b, a := in.RGBA()
 	gray := utils.ClampUint16(math.Floor(float64(r)*0.2126 + float64(g)*0.7152 + float64(b)*0.0722))

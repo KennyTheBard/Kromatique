@@ -18,6 +18,7 @@ func (pos *MixedPosition) Find(bounds image.Rectangle) image.Point {
 	return image.Pt(pos.posX.Find(bounds.Min.X, bounds.Max.X), pos.posY.Find(bounds.Min.Y, bounds.Max.Y))
 }
 
+// Pos returns a MixedPosition from the given AxialPositions
 func Pos(posX, posY AxialPosition) *MixedPosition {
 	pos := new(MixedPosition)
 	pos.posX = posX

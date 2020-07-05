@@ -7,6 +7,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
+// Morph applies a cross disolve on the given images, based on the given
+// slices of points along the given number of steps
 func Morph(src, dst image.Image, srcPoints, dstPoints []Vertex, numSteps int) []image.Image {
 	if len(srcPoints) != len(dstPoints) {
 		panic("Unequal number of points for images")

@@ -18,6 +18,7 @@ type Segment struct {
 	p0, p1 Point2D
 }
 
+// GetPoint returns the point on the path for the given factor
 func (path *Segment) GetPoint(t float64) Point2D {
 	p0, p1 := path.Model().Apply(path.p0), path.Model().Apply(path.p1)
 
@@ -26,6 +27,7 @@ func (path *Segment) GetPoint(t float64) Point2D {
 		(1-t)*p0.Y+t*p1.Y)
 }
 
+// NewSegment returns a Segment path defined by the given Point2Ds
 func NewSegment(p0, p1 Point2D) *Segment {
 	path := new(Segment)
 	InitObject(&path.Object2D)
@@ -41,6 +43,7 @@ type Bezier3 struct {
 	p0, p1, p2 Point2D
 }
 
+// GetPoint returns the point on the path for the given factor
 func (path *Bezier3) GetPoint(t float64) Point2D {
 	p0, p1, p2 := path.Model().Apply(path.p0), path.Model().Apply(path.p1), path.Model().Apply(path.p2)
 
@@ -49,6 +52,7 @@ func (path *Bezier3) GetPoint(t float64) Point2D {
 		(1-t)*(1-t)*p0.Y+2*t*(1-t)*p1.Y+t*t*p2.Y)
 }
 
+// NewBezier3 returns a Bezier3 path defined by the given Point2Ds
 func NewBezier3(p0, p1, p2 Point2D) *Bezier3 {
 	path := new(Bezier3)
 	InitObject(&path.Object2D)
@@ -65,6 +69,7 @@ type Bezier4 struct {
 	p0, p1, p2, p3 Point2D
 }
 
+// GetPoint returns the point on the path for the given factor
 func (path *Bezier4) GetPoint(t float64) Point2D {
 	p0, p1, p2, p3 := path.Model().Apply(path.p0), path.Model().Apply(path.p1), path.Model().Apply(path.p2), path.Model().Apply(path.p3)
 
@@ -73,6 +78,7 @@ func (path *Bezier4) GetPoint(t float64) Point2D {
 		(1-t)*(1-t)*(1-t)*p0.Y+3*t*(1-t)*(1-t)*p1.Y+3*t*t*(1-t)*p2.Y+t*t*t*p3.Y)
 }
 
+// NewBezier4 returns a Bezier4 path defined by the given Point2Ds
 func NewBezier4(p0, p1, p2, p3 Point2D) *Bezier4 {
 	path := new(Bezier4)
 	InitObject(&path.Object2D)
@@ -90,6 +96,7 @@ type Hermite struct {
 	p0, p1, m0, m1 Point2D
 }
 
+// GetPoint returns the point on the path for the given factor
 func (path *Hermite) GetPoint(t float64) Point2D {
 	p0, p1, m0, m1 := path.Model().Apply(path.p0), path.Model().Apply(path.p1), path.Model().Apply(path.m0), path.Model().Apply(path.m1)
 
@@ -98,6 +105,7 @@ func (path *Hermite) GetPoint(t float64) Point2D {
 		(2*t*t*t-3*t*t+1)*p0.Y+(t*t*t-2*t*t+t)*m0.Y+(-2*t*t*t+3*t*t)*p1.Y+(t*t*t-t*t)*m1.Y)
 }
 
+// NewHermite returns a Hermite path defined by the given Point2Ds
 func NewHermite(p0, p1, m0, m1 Point2D) *Hermite {
 	path := new(Hermite)
 	InitObject(&path.Object2D)
@@ -114,24 +122,28 @@ type ComposedPath struct {
 	subpaths []Path
 }
 
+// Translate applies the given translation to each composing subpath
 func (path *ComposedPath) Translate(x, y float64) {
 	for _, subpath := range path.subpaths {
 		subpath.Translate(x, y)
 	}
 }
 
+// Scale applies the given scaling to each composing subpath
 func (path *ComposedPath) Scale(x, y float64) {
 	for _, subpath := range path.subpaths {
 		subpath.Scale(x, y)
 	}
 }
 
+// Rotate applies the given rotation to each composing subpath
 func (path *ComposedPath) Rotate(a float64) {
 	for _, subpath := range path.subpaths {
 		subpath.Rotate(a)
 	}
 }
 
+// GetPoint returns the point on the path for the given factor
 func (path *ComposedPath) GetPoint(t float64) Point2D {
 	aux := t
 	if t == float64(len(path.subpaths)) {
@@ -140,6 +152,7 @@ func (path *ComposedPath) GetPoint(t float64) Point2D {
 	return path.subpaths[int(math.Floor(aux))].GetPoint(t)
 }
 
+// NewComposedPath returns a ComposedPath path composed of the given Paths
 func NewComposedPath(subpaths []Path) *ComposedPath {
 	path := new(ComposedPath)
 	path.subpaths = subpaths

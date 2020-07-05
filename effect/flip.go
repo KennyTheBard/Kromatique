@@ -11,17 +11,17 @@ import (
 // FlipperStrategy returns the flipped position for a given position in the bounds of the image
 type FlipperStrategy func(int, int, image.Rectangle) (int, int)
 
-// HorizontalFlip returns the given position flipped horizontally
+// HorizontalFlipper returns the given position flipped horizontally
 func HorizontalFlipper(x, y int, bounds image.Rectangle) (int, int) {
 	return bounds.Max.X - (x - bounds.Min.X), y
 }
 
-// VerticalFlip returns the given position flipped vertically
+// VerticalFlipper returns the given position flipped vertically
 func VerticalFlipper(x, y int, bounds image.Rectangle) (int, int) {
 	return x, bounds.Max.Y - (y - bounds.Min.Y)
 }
 
-// Flip returns the given image.Image flipper by given FlipperStrategy
+// Flip returns a function that applies the given FlipperStrategy on an image
 func Flip(img image.Image, strategy FlipperStrategy) image.Image {
 	ret := utils.CreateRGBA(img.Bounds())
 
@@ -35,12 +35,12 @@ func Flip(img image.Image, strategy FlipperStrategy) image.Image {
 	return ret
 }
 
-// FlipHorizontal returns the given image.Image flipper horizontally
+// FlipHorizontal returns a function that applies HorizontalFlipper on an image
 func FlipHorizontal(img image.Image) image.Image {
 	return Flip(img, HorizontalFlipper)
 }
 
-// FlipHorizontal returns the given image.Image flipper vertically
+// FlipVertical returns a function that applies VerticalFlipper on an image
 func FlipVertical(img image.Image) image.Image {
 	return Flip(img, VerticalFlipper)
 }

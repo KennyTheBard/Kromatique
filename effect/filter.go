@@ -11,8 +11,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// Filter encapsulates the data needed for a filter using a single kernel
-// and implements the general way such a filter is applied on an image
+// Convolution returns a function that applies the given kernel on an image
+// with respect to the given Edgehandling strategy
 func Convolution(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		ret := utils.CreateRGBA(img.Bounds())
@@ -26,7 +26,6 @@ func Convolution(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) func(i
 						newX, newY := edgeHandling(img.Bounds(), x+xx, y+yy)
 						r, g, b, a := img.At(newX, newY).RGBA()
 
-						// TODO : replace this with a kernel method applied on color
 						newRed += float64(r) * kernel.Get(xx+radius, yy+radius)
 						newGreen += float64(g) * kernel.Get(xx+radius, yy+radius)
 						newBlue += float64(b) * kernel.Get(xx+radius, yy+radius)
@@ -46,15 +45,16 @@ func Convolution(edgeHandling strategy.EdgeHandling, kernel utils.Kernel) func(i
 	}
 }
 
-// MultiFilter encapsulates the logic data needed for a filter using multiple kernels
-// and implements a customizable way of defining the behaviour
+// MultiConvolution returns a function that applies the given kernels on an image
+// with respect to the given Edgehandling strategy, merging results with
+// the given ColorMerge strategy
 func MultiConvolution(edgeHandling strategy.EdgeHandling, merge strategy.ColorMerger, kernels ...utils.Kernel) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		ret := utils.CreateRGBA(img.Bounds())
 
 		numKernels := len(kernels)
 		radiusList := make([]int, len(kernels))
-		for i, _ := range radiusList {
+		for i := range radiusList {
 			radiusList[i] = kernels[i].Radius()
 		}
 

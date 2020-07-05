@@ -10,8 +10,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// Distortion serves as a generic customizable structure that encapsulates
-// the logic needed to apply a distortion on a given image
+// Distortion applies the Vectors obtained from the given lens
+// to an image, with respect to the EdgeHandling strategy given
 func Distortion(edgeHandling strategy.EdgeHandling, lens strategy.Lens) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		ret := utils.CreateRGBA(img.Bounds())

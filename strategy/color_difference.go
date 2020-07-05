@@ -24,9 +24,9 @@ func BinaryDifference(delta float64, same, difference color.Color) ColorDifferen
 
 		if dif < border {
 			return same
-		} else {
-			return difference
 		}
+
+		return difference
 	}
 }
 

@@ -9,8 +9,7 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// ColorMapper serves as a generic customizable structure that encapsulates
-// the logic needed to apply a series of MappingRule on an image
+// Adjust returns a function that applies the given MappingRules on an image
 func Adjust(rules ...strategy.MappingRule) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		ret := utils.CreateRGBA(img.Bounds())

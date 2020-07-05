@@ -9,7 +9,7 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-const MaxDistBetween2Points = 1
+const maxDistBetween2Points = 1
 
 func skeletonSubpath(path geometry.Path, start, end float64, startPoint, endPoint geometry.Point2D) []geometry.Point2D {
 	mid := (start + end) / 2
@@ -17,14 +17,14 @@ func skeletonSubpath(path geometry.Path, start, end float64, startPoint, endPoin
 	var returnPoints []geometry.Point2D
 
 	//fmt.Println(mid, midPoint, start, startPoint, midPoint.Dist(startPoint))
-	if midPoint.Dist(startPoint) > MaxDistBetween2Points {
+	if midPoint.Dist(startPoint) > maxDistBetween2Points {
 		returnPoints = append(returnPoints, skeletonSubpath(path, start, mid, startPoint, midPoint)...)
 	} else {
 		returnPoints = append(returnPoints, startPoint)
 	}
 
 	//fmt.Println(mid, midPoint, end, endPoint, midPoint.Dist(startPoint))
-	if midPoint.Dist(endPoint) > MaxDistBetween2Points {
+	if midPoint.Dist(endPoint) > maxDistBetween2Points {
 		returnPoints = append(returnPoints, skeletonSubpath(path, mid, end, midPoint, endPoint)...)
 	} else {
 		returnPoints = append(returnPoints, midPoint)
@@ -33,6 +33,8 @@ func skeletonSubpath(path geometry.Path, start, end float64, startPoint, endPoin
 	return returnPoints
 }
 
+// PathRender renders a Path with a given Painter and width, using a divide-et impera
+// in order to obtain close points
 func PathRender(path geometry.Path, paint Painter, width float64) image.Image {
 	points := skeletonSubpath(path, 0, 1, path.GetPoint(0), path.GetPoint(1))
 

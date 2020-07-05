@@ -11,8 +11,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// Median serves as a generic customizable structure that encapsulates
-// the logic needed to apply a a median effect on an image
+// Median returns a function that applies a Median effects with respect
+// to the given ColorEvaluation strategy, EdgeHandling strategy and window radius to an image
 func Median(eval strategy.ColorEvaluation, edgeHandling strategy.EdgeHandling, windowRadius int) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		bounds := img.Bounds()

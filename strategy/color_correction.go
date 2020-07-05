@@ -33,6 +33,8 @@ func DividedColorCorrection(c color.Color, val int16) color.Color {
 	}
 }
 
+// LightnessCorrection modifies all 3 color channels with respect
+// the lightness ratios
 func LightnessCorrection(c color.Color, val int16) color.Color {
 	r, g, b, a := c.RGBA()
 	return color.RGBA{

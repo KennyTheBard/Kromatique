@@ -10,8 +10,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// Jitter serves as a generic customizable structure that encapsulates
-// the logic needed to apply a jitter effect on an image
+// Jitter returns a function that applies a jitter effect
+// with the given radius on an image
 func Jitter(radius int) func(image.Image) image.Image {
 	return func(img image.Image) image.Image {
 		ret := utils.CreateRGBA(img.Bounds())

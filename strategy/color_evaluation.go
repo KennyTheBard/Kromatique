@@ -11,6 +11,7 @@ import (
 // color channels into a single numerical value, easier to index
 type ColorEvaluation func(color.Color) uint8
 
+// LightnessEval returns a value based on lightness equation
 func LightnessEval(c color.Color) uint8 {
 	r, g, b, _ := c.RGBA()
 
@@ -18,6 +19,7 @@ func LightnessEval(c color.Color) uint8 {
 	return uint8(utils.ClampUint8(math.Round(lightness / (math.MaxUint8 + 1))))
 }
 
+// LightnessEval returns a value based on average between color channels
 func ValueEval(c color.Color) uint8 {
 	r, g, b, _ := c.RGBA()
 
@@ -25,6 +27,7 @@ func ValueEval(c color.Color) uint8 {
 	return uint8(utils.ClampUint8(math.Round(value / (math.MaxUint8 + 1))))
 }
 
+// LightnessEval returns a value based on alpha channel
 func AlphaEval(c color.Color) uint8 {
 	_, _, _, a := c.RGBA()
 

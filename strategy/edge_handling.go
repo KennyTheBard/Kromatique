@@ -11,7 +11,7 @@ func None(_ image.Rectangle, x, y int) (int, int) {
 	return x, y
 }
 
-// Extends returns the color of the closest pixel of the image
+// Extend returns the color of the closest pixel of the image
 func Extend(bounds image.Rectangle, x, y int) (int, int) {
 	if x < bounds.Min.X {
 		x = bounds.Min.X

@@ -170,6 +170,8 @@ func buildTree(tree leaf, th int) octree {
 	return &tree
 }
 
+// GeneratePallet generates a pallet for the given image
+// with the given maximum number of colors
 func GeneratePallet(img image.Image, numColors int) []color.Color {
 	// initialize color cube
 	colorCube := make([][][]int, 256)

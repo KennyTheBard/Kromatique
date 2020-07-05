@@ -9,8 +9,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
-// Scale serves as a generic customizable structure that encapsulates
-// the logic needed to apply a scaling transformation on an image
+// Scale returns a function that uses the given ColorSampling strategy
+// in order to resize an image to the required dimensions
 func Scale(colorSamplingStrategy strategy.ColorSampling) func(image.Image, int, int) image.Image {
 	return func(img image.Image, dx, dy int) image.Image {
 		factor := strategy.ScaleFactor{

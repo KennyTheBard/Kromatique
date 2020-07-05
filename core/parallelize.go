@@ -9,6 +9,8 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
+// Parallelize uses the current GOMAXPROCS to parallelize
+// the given function for the requested number of times
 func Parallelize(numLines int, fn func(y int)) {
 	if numLines < 1 {
 		return

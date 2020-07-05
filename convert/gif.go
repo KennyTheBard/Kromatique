@@ -10,6 +10,8 @@ import (
 	"github.com/kennythebard/kromatique/utils"
 )
 
+// ImageToGif converts the given slice of images and delays to a GIF,
+// reducing their color pallet to colorPalletSize
 func ImageToGif(images []image.Image, delays []int, colorPalletSize int) (*gif.GIF, error) {
 	if len(images) != len(delays) {
 		return nil, errors.New("images and delays have different lengths")

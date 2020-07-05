@@ -9,6 +9,7 @@ import (
 // should change for a given coordinate of the image
 type Mask func(int, int) float64
 
+// TrueMask is a mask that returns true for any given coordinates
 func TrueMask(int, int) float64 {
 	return 1
 }
@@ -35,9 +36,9 @@ func BitmapMask(bitmap [][]float64) Mask {
 	return func(x, y int) float64 {
 		if y >= dy || x >= dx {
 			return 0
-		} else {
-			return bitmap[y][x]
 		}
+
+		return bitmap[y][x]
 	}
 }
 
